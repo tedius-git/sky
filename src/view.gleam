@@ -99,8 +99,8 @@ fn view_toggle_theme(light_on: Bool) {
   view_switch(
     UserToggleTheme,
     light_on,
-    h.img([a.src("../src/Assets/theme.png"), size]),
-    h.img([a.src("../src/Assets/theme.png"), size, invert]),
+    h.img([a.src("./priv/static/assets/theme.png"), size]),
+    h.img([a.src("./priv/static/assets/theme.png"), size, invert]),
   )
 }
 
@@ -113,8 +113,8 @@ fn view_toggle_paused(paused: Bool, light_on: Bool) {
   view_switch(
     UserTogglePaused,
     paused,
-    h.img([a.src("../src/Assets/pause.png"), size, invert]),
-    h.img([a.src("../src/Assets/play.png"), size, invert]),
+    h.img([a.src("./priv/static/assets/pause.png"), size, invert]),
+    h.img([a.src("./priv/static/assets/play.png"), size, invert]),
   )
 }
 

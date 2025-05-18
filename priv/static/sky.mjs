@@ -4859,8 +4859,8 @@ function view_toggle_theme(light_on) {
   return view_switch(
     new UserToggleTheme(),
     light_on,
-    img(toList([src("../src/Assets/theme.png"), size2])),
-    img(toList([src("../src/Assets/theme.png"), size2, invert]))
+    img(toList([src("./priv/static/assets/theme.png"), size2])),
+    img(toList([src("./priv/static/assets/theme.png"), size2, invert]))
   );
 }
 function view_toggle_paused(paused, light_on) {
@@ -4875,8 +4875,8 @@ function view_toggle_paused(paused, light_on) {
   return view_switch(
     new UserTogglePaused(),
     paused,
-    img(toList([src("../src/Assets/pause.png"), size2, invert])),
-    img(toList([src("../src/Assets/play.png"), size2, invert]))
+    img(toList([src("./priv/static/assets/pause.png"), size2, invert])),
+    img(toList([src("./priv/static/assets/play.png"), size2, invert]))
   );
 }
 function view_timer(paused, time, light_on) {
