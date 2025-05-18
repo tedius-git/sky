@@ -5237,7 +5237,7 @@ function view(model) {
 // build/dev/javascript/sky/sky.mjs
 function main() {
   let app = application(init, update2, view);
-  let $ = start3(app, "div", void 0);
+  let $ = start3(app, "#app", void 0);
   if (!$.isOk()) {
     throw makeError(
       "let_assert",
