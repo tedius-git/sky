@@ -30,6 +30,22 @@ pub fn view(model: Model) -> Element(Msg) {
   h.div([bg, text], [
     h.div([a.class("h-screen")], [
       h.div([a.class("static flex h-full z-0")], [
+        h.a(
+          [
+            a.class("absolute bottom-5 right-5 size-4 z-40"),
+            a.target("_black"),
+            a.href("https://github.com/tedius-git/sky"),
+          ],
+          [
+            h.img([
+              bool.guard(
+                model.light_on,
+                a.src("./priv/static/assets/github-mark.svg"),
+                fn() { a.src("./priv/static/assets/github-mark-white.svg") },
+              ),
+            ]),
+          ],
+        ),
         h.div(
           [a.class("absolute bottom-0 w-full z-20 flex flex-row items-end")],
           [

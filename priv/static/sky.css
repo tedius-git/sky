@@ -569,8 +569,16 @@ video {
   bottom: 0px;
 }
 
+.bottom-5 {
+  bottom: 1.25rem;
+}
+
 .bottom-6 {
   bottom: 1.5rem;
+}
+
+.right-5 {
+  right: 1.25rem;
 }
 
 .top-5 {
@@ -589,6 +597,10 @@ video {
   z-index: 20;
 }
 
+.z-40 {
+  z-index: 40;
+}
+
 .m-4 {
   margin: 1rem;
 }
@@ -600,6 +612,11 @@ video {
 .size-32 {
   width: 8rem;
   height: 8rem;
+}
+
+.size-4 {
+  width: 1rem;
+  height: 1rem;
 }
 
 .size-6 {

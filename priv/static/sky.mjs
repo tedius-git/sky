@@ -183,15 +183,15 @@ var BitArray = class {
       }
     } else {
       for (let i = 0; i < wholeByteCount; i++) {
-        const a = bitArrayByteAt(this.rawBuffer, this.bitOffset, i);
+        const a2 = bitArrayByteAt(this.rawBuffer, this.bitOffset, i);
         const b = bitArrayByteAt(other.rawBuffer, other.bitOffset, i);
-        if (a !== b) {
+        if (a2 !== b) {
           return false;
         }
       }
       const trailingBitsCount = this.bitSize % 8;
       if (trailingBitsCount) {
-        const a = bitArrayByteAt(
+        const a2 = bitArrayByteAt(
           this.rawBuffer,
           this.bitOffset,
           wholeByteCount
@@ -202,7 +202,7 @@ var BitArray = class {
           wholeByteCount
         );
         const unusedLowBitCount = 8 - trailingBitsCount;
-        if (a >> unusedLowBitCount !== b >> unusedLowBitCount) {
+        if (a2 >> unusedLowBitCount !== b >> unusedLowBitCount) {
           return false;
         }
       }
@@ -252,9 +252,9 @@ function bitArrayByteAt(buffer, bitOffset, index3) {
   if (bitOffset === 0) {
     return buffer[index3] ?? 0;
   } else {
-    const a = buffer[index3] << bitOffset & 255;
+    const a2 = buffer[index3] << bitOffset & 255;
     const b = buffer[index3 + 1] >> 8 - bitOffset;
-    return a | b;
+    return a2 | b;
   }
 }
 var isBitArrayDeprecationMessagePrinted = {};
@@ -296,23 +296,23 @@ var Error = class extends Result {
 function isEqual(x2, y2) {
   let values3 = [x2, y2];
   while (values3.length) {
-    let a = values3.pop();
+    let a2 = values3.pop();
     let b = values3.pop();
-    if (a === b) continue;
-    if (!isObject(a) || !isObject(b)) return false;
-    let unequal = !structurallyCompatibleObjects(a, b) || unequalDates(a, b) || unequalBuffers(a, b) || unequalArrays(a, b) || unequalMaps(a, b) || unequalSets(a, b) || unequalRegExps(a, b);
+    if (a2 === b) continue;
+    if (!isObject(a2) || !isObject(b)) return false;
+    let unequal = !structurallyCompatibleObjects(a2, b) || unequalDates(a2, b) || unequalBuffers(a2, b) || unequalArrays(a2, b) || unequalMaps(a2, b) || unequalSets(a2, b) || unequalRegExps(a2, b);
     if (unequal) return false;
-    const proto = Object.getPrototypeOf(a);
+    const proto = Object.getPrototypeOf(a2);
     if (proto !== null && typeof proto.equals === "function") {
       try {
-        if (a.equals(b)) continue;
+        if (a2.equals(b)) continue;
         else return false;
       } catch {
       }
     }
-    let [keys2, get2] = getters(a);
-    for (let k of keys2(a)) {
-      values3.push(get2(a, k), get2(b, k));
+    let [keys2, get2] = getters(a2);
+    for (let k of keys2(a2)) {
+      values3.push(get2(a2, k), get2(b, k));
     }
   }
   return true;
@@ -325,39 +325,39 @@ function getters(object4) {
     return [(x2) => [...extra, ...Object.keys(x2)], (x2, y2) => x2[y2]];
   }
 }
-function unequalDates(a, b) {
-  return a instanceof Date && (a > b || a < b);
+function unequalDates(a2, b) {
+  return a2 instanceof Date && (a2 > b || a2 < b);
 }
-function unequalBuffers(a, b) {
-  return !(a instanceof BitArray) && a.buffer instanceof ArrayBuffer && a.BYTES_PER_ELEMENT && !(a.byteLength === b.byteLength && a.every((n, i) => n === b[i]));
+function unequalBuffers(a2, b) {
+  return !(a2 instanceof BitArray) && a2.buffer instanceof ArrayBuffer && a2.BYTES_PER_ELEMENT && !(a2.byteLength === b.byteLength && a2.every((n, i) => n === b[i]));
 }
-function unequalArrays(a, b) {
-  return Array.isArray(a) && a.length !== b.length;
+function unequalArrays(a2, b) {
+  return Array.isArray(a2) && a2.length !== b.length;
 }
-function unequalMaps(a, b) {
-  return a instanceof Map && a.size !== b.size;
+function unequalMaps(a2, b) {
+  return a2 instanceof Map && a2.size !== b.size;
 }
-function unequalSets(a, b) {
-  return a instanceof Set && (a.size != b.size || [...a].some((e) => !b.has(e)));
+function unequalSets(a2, b) {
+  return a2 instanceof Set && (a2.size != b.size || [...a2].some((e) => !b.has(e)));
 }
-function unequalRegExps(a, b) {
-  return a instanceof RegExp && (a.source !== b.source || a.flags !== b.flags);
+function unequalRegExps(a2, b) {
+  return a2 instanceof RegExp && (a2.source !== b.source || a2.flags !== b.flags);
 }
-function isObject(a) {
-  return typeof a === "object" && a !== null;
+function isObject(a2) {
+  return typeof a2 === "object" && a2 !== null;
 }
-function structurallyCompatibleObjects(a, b) {
-  if (typeof a !== "object" && typeof b !== "object" && (!a || !b))
+function structurallyCompatibleObjects(a2, b) {
+  if (typeof a2 !== "object" && typeof b !== "object" && (!a2 || !b))
     return false;
   let nonstructural = [Promise, WeakSet, WeakMap, Function];
-  if (nonstructural.some((c) => a instanceof c)) return false;
-  return a.constructor === b.constructor;
+  if (nonstructural.some((c) => a2 instanceof c)) return false;
+  return a2.constructor === b.constructor;
 }
-function divideFloat(a, b) {
+function divideFloat(a2, b) {
   if (b === 0) {
     return 0;
   } else {
-    return a / b;
+    return a2 / b;
   }
 }
 function makeError(variant, module, line2, fn, message, extra) {
@@ -407,8 +407,8 @@ function hashByReference(o) {
   referenceMap.set(o, hash);
   return hash;
 }
-function hashMerge(a, b) {
-  return a ^ b + 2654435769 + (a << 6) + (a >> 2) | 0;
+function hashMerge(a2, b) {
+  return a2 ^ b + 2654435769 + (a2 << 6) + (a2 >> 2) | 0;
 }
 function hashString(s) {
   let hash = 0;
@@ -1181,8 +1181,8 @@ function absolute_value(x2) {
     return 0 - x2;
   }
 }
-function loosely_equals(a, b, tolerance) {
-  let difference = absolute_value(a - b);
+function loosely_equals(a2, b, tolerance) {
+  let difference = absolute_value(a2 - b);
   return difference <= tolerance;
 }
 function negate(x2) {
@@ -1196,11 +1196,11 @@ function round2(x2) {
     return 0 - round(negate(x2));
   }
 }
-function add(a, b) {
-  return a + b;
+function add(a2, b) {
+  return a2 + b;
 }
-function multiply(a, b) {
-  return a * b;
+function multiply(a2, b) {
+  return a2 * b;
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/int.mjs
@@ -1217,12 +1217,12 @@ function insert(dict2, key, value) {
 
 // build/dev/javascript/gleam_stdlib/gleam/pair.mjs
 function first(pair) {
-  let a = pair[0];
-  return a;
+  let a2 = pair[0];
+  return a2;
 }
 function second(pair) {
-  let a = pair[1];
-  return a;
+  let a2 = pair[1];
+  return a2;
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/list.mjs
@@ -1312,14 +1312,14 @@ function map2_loop(loop$list1, loop$list2, loop$fun, loop$acc) {
     } else if (list22.hasLength(0)) {
       return reverse(acc);
     } else {
-      let a = list1.head;
+      let a2 = list1.head;
       let as_ = list1.tail;
       let b = list22.head;
       let bs = list22.tail;
       loop$list1 = as_;
       loop$list2 = bs;
       loop$fun = fun;
-      loop$acc = prepend(fun(a, b), acc);
+      loop$acc = prepend(fun(a2, b), acc);
     }
   }
 }
@@ -1745,10 +1745,10 @@ function partition_loop(loop$results, loop$oks, loop$errors) {
     if (results.hasLength(0)) {
       return [oks, errors];
     } else if (results.atLeastLength(1) && results.head.isOk()) {
-      let a = results.head[0];
+      let a2 = results.head[0];
       let rest = results.tail;
       loop$results = rest;
-      loop$oks = prepend(a, oks);
+      loop$oks = prepend(a2, oks);
       loop$errors = errors;
     } else {
       let e = results.head[0];
@@ -1857,10 +1857,10 @@ var option_none = /* @__PURE__ */ new None();
 var GT = /* @__PURE__ */ new Gt();
 var LT = /* @__PURE__ */ new Lt();
 var EQ = /* @__PURE__ */ new Eq();
-function compare3(a, b) {
-  if (a.name === b.name) {
+function compare3(a2, b) {
+  if (a2.name === b.name) {
     return EQ;
-  } else if (a.name < b.name) {
+  } else if (a2.name < b.name) {
     return LT;
   } else {
     return GT;
@@ -1917,15 +1917,15 @@ var Throttle = class extends CustomType {
     this.delay = delay;
   }
 };
-function limit_equals(a, b) {
-  if (a instanceof NoLimit && b instanceof NoLimit) {
+function limit_equals(a2, b) {
+  if (a2 instanceof NoLimit && b instanceof NoLimit) {
     return true;
-  } else if (a instanceof Debounce && b instanceof Debounce && a.delay === b.delay) {
-    let d1 = a.delay;
+  } else if (a2 instanceof Debounce && b instanceof Debounce && a2.delay === b.delay) {
+    let d1 = a2.delay;
     let d2 = b.delay;
     return true;
-  } else if (a instanceof Throttle && b instanceof Throttle && a.delay === b.delay) {
-    let d1 = a.delay;
+  } else if (a2 instanceof Throttle && b instanceof Throttle && a2.delay === b.delay) {
+    let d1 = a2.delay;
     let d2 = b.delay;
     return true;
   } else {
@@ -1971,8 +1971,8 @@ function prepare(attributes) {
     return attributes;
   } else {
     let _pipe = attributes;
-    let _pipe$1 = sort(_pipe, (a, b) => {
-      return compare3(b, a);
+    let _pipe$1 = sort(_pipe, (a2, b) => {
+      return compare3(b, a2);
     });
     return merge(_pipe$1, empty_list);
   }
@@ -2007,6 +2007,12 @@ function class$(name) {
 }
 function id(value) {
   return attribute2("id", value);
+}
+function href(url) {
+  return attribute2("href", url);
+}
+function target(value) {
+  return attribute2("target", value);
 }
 function src(url) {
   return attribute2("src", url);
@@ -3551,8 +3557,8 @@ var addKeyedChild = (node, child) => {
 };
 var getKeyedChild = (node, key) => node[meta].keyedChildren.get(key).deref();
 var handleEvent = (event4) => {
-  const target = event4.currentTarget;
-  const handler = target[meta].handlers.get(event4.type);
+  const target2 = event4.currentTarget;
+  const handler = target2[meta].handlers.get(event4.type);
   if (event4.type === "submit") {
     event4.detail ??= {};
     event4.detail.formData = [...new FormData(event4.target).entries()];
@@ -3717,7 +3723,7 @@ var virtualise_attribute = (attr) => {
 
 // build/dev/javascript/lustre/lustre/runtime/client/runtime.ffi.mjs
 var is_browser = () => !!document;
-var is_reference_equal = (a, b) => a === b;
+var is_reference_equal = (a2, b) => a2 === b;
 var Runtime = class {
   constructor(root3, [model, effects], view2, update3) {
     this.root = root3;
@@ -3752,8 +3758,8 @@ var Runtime = class {
     }
   }
   emit(event4, data) {
-    const target = this.root.host ?? this.root;
-    target.dispatchEvent(
+    const target2 = this.root.host ?? this.root;
+    target2.dispatchEvent(
       new CustomEvent(event4, {
         detail: data,
         bubbles: true,
@@ -3838,13 +3844,13 @@ function makeEffect(synchronous) {
     before_paint: empty_list
   };
 }
-function listAppend(a, b) {
-  if (a instanceof Empty) {
+function listAppend(a2, b) {
+  if (a2 instanceof Empty) {
     return b;
   } else if (b instanceof Empty) {
-    return a;
+    return a2;
   } else {
-    return append(a, b);
+    return append(a2, b);
   }
 }
 
@@ -4160,6 +4166,9 @@ function div(attrs, children) {
 function p(attrs, children) {
   return element2("p", attrs, children);
 }
+function a(attrs, children) {
+  return element2("a", attrs, children);
+}
 function img(attrs) {
   return element2("img", attrs, empty_list);
 }
@@ -4324,7 +4333,7 @@ function add4(v, u) {
 function subtract(v, u) {
   return add4(v, negate3(u));
 }
-function scale(a, v) {
+function scale(a2, v) {
   let smart_mult = (s, t) => {
     if (s === 0) {
       return 0;
@@ -4335,7 +4344,7 @@ function scale(a, v) {
     }
   };
   return map(v, (_capture) => {
-    return smart_mult(a, _capture);
+    return smart_mult(a2, _capture);
   });
 }
 function dot(v, u) {
@@ -4403,12 +4412,12 @@ var UpdateParticles = class extends CustomType {
   }
 };
 var Particle = class extends CustomType {
-  constructor(m, r, v, a) {
+  constructor(m, r, v, a2) {
     super();
     this.m = m;
     this.r = r;
     this.v = v;
-    this.a = a;
+    this.a = a2;
   }
 };
 function forces(particle, others) {
@@ -4507,7 +4516,7 @@ function update_particle(particle, all2, time, width, height) {
   let y2 = $1[0];
   let r = particle.r;
   let v = particle.v;
-  let a = particle.a;
+  let a2 = particle.a;
   let $2 = x2 <= width;
   let $3 = y2 <= height;
   if ($2 && $3) {
@@ -4515,7 +4524,7 @@ function update_particle(particle, all2, time, width, height) {
       new Particle(
         particle.m,
         add4(r, scale(time, v)),
-        add4(v, scale(time, a)),
+        add4(v, scale(time, a2)),
         sum_forces(particle, all2)
       )
     );
@@ -5023,7 +5032,7 @@ function view_particle(particle) {
     throw makeError(
       "let_assert",
       "view",
-      255,
+      271,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -5035,7 +5044,7 @@ function view_particle(particle) {
     throw makeError(
       "let_assert",
       "view",
-      256,
+      272,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -5071,7 +5080,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      275,
+      291,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -5083,7 +5092,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      276,
+      292,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -5095,7 +5104,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      277,
+      293,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $2 }
@@ -5107,7 +5116,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      278,
+      294,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $3 }
@@ -5181,6 +5190,28 @@ function view(model) {
           div(
             toList([class$("static flex h-full z-0")]),
             toList([
+              a(
+                toList([
+                  class$("absolute bottom-5 right-5 size-4 z-40"),
+                  target("_black"),
+                  href("https://github.com/tedius-git/sky")
+                ]),
+                toList([
+                  img(
+                    toList([
+                      guard(
+                        model.light_on,
+                        src("./priv/static/assets/github-mark.svg"),
+                        () => {
+                          return src(
+                            "./priv/static/assets/github-mark-white.svg"
+                          );
+                        }
+                      )
+                    ])
+                  )
+                ])
+              ),
               div(
                 toList([
                   class$(
