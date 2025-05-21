@@ -5035,7 +5035,7 @@ function view_particle(particle) {
     throw makeError(
       "let_assert",
       "view",
-      261,
+      267,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -5047,7 +5047,7 @@ function view_particle(particle) {
     throw makeError(
       "let_assert",
       "view",
-      262,
+      268,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -5083,7 +5083,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      281,
+      287,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -5095,7 +5095,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      282,
+      288,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -5107,7 +5107,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      283,
+      289,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $2 }
@@ -5119,7 +5119,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      284,
+      290,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $3 }

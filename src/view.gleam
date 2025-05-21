@@ -46,22 +46,28 @@ pub fn view(model: Model) -> Element(Msg) {
         ]),
       ],
     ),
+    // Menu bar
+    // | Buttons...| Timer | Buttons...|
     h.div([a.class("absolute bottom-0 w-full z-20 flex flex-row items-end")], [
+      // Buttons right
       h.div([a.class("flex-grow z-20 flex justify-end")], [
         div_glass([a.class("w-12")], [
           view_switch(UserToggleDebug, model.debug, h.text("i"), h.text("i")),
         ]),
       ]),
+      // Timer
       div_glass([a.class("w-12")], [view_toggle_theme(model.light_on)]),
       h.div([a.class("flex-shrink-0")], [
         view_timer(model.paused, model.time, model.light_on),
       ]),
+      // Buttons left
       h.div([a.class("flex-grow z-20")], [
         div_glass([a.class("w-12")], [
           view_button_text(on_click: UserAddedParticle, label: "+"),
         ]),
       ]),
     ]),
+    // Simulation Svg
     view_sim(model),
   ])
 }
