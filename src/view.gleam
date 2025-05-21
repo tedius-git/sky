@@ -27,52 +27,42 @@ pub fn view(model: Model) -> Element(Msg) {
     True -> a.class("text-black")
     False -> a.class("text-white")
   }
-  h.div([bg, text], [
-    h.div([a.class("h-screen")], [
-      h.div([a.class("static flex h-full z-0")], [
-        h.a(
-          [
-            a.class("absolute bottom-5 right-5 size-4 z-40"),
-            a.target("_black"),
-            a.href("https://github.com/tedius-git/sky"),
-          ],
-          [
-            h.img([
-              bool.guard(
-                model.light_on,
-                a.src("./priv/static/assets/github-mark.svg"),
-                fn() { a.src("./priv/static/assets/github-mark-white.svg") },
-              ),
-            ]),
-          ],
-        ),
-        h.div(
-          [a.class("absolute bottom-0 w-full z-20 flex flex-row items-end")],
-          [
-            h.div([a.class("flex-grow z-20 flex justify-end")], [
-              div_glass([a.class("w-12")], [
-                view_switch(
-                  UserToggleDebug,
-                  model.debug,
-                  h.text("i"),
-                  h.text("i"),
-                ),
-              ]),
-            ]),
-            div_glass([a.class("w-12")], [view_toggle_theme(model.light_on)]),
-            h.div([a.class("flex-shrink-0")], [
-              view_timer(model.paused, model.time, model.light_on),
-            ]),
-            h.div([a.class("flex-grow z-20")], [
-              div_glass([a.class("w-12")], [
-                view_button_text(on_click: UserAddedParticle, label: "+"),
-              ]),
-            ]),
-          ],
-        ),
-        view_sim(model),
+  // Main div 
+  h.main([bg, text, a.class("h-screen static flex h-full z-0")], [
+    // Github repo link
+    h.a(
+      [
+        a.class("absolute bottom-5 right-5 size-4 z-40"),
+        a.target("_black"),
+        a.href("https://github.com/tedius-git/sky"),
+      ],
+      [
+        h.img([
+          bool.guard(
+            model.light_on,
+            a.src("./priv/static/assets/github-mark.svg"),
+            fn() { a.src("./priv/static/assets/github-mark-white.svg") },
+          ),
+        ]),
+      ],
+    ),
+    h.div([a.class("absolute bottom-0 w-full z-20 flex flex-row items-end")], [
+      h.div([a.class("flex-grow z-20 flex justify-end")], [
+        div_glass([a.class("w-12")], [
+          view_switch(UserToggleDebug, model.debug, h.text("i"), h.text("i")),
+        ]),
+      ]),
+      div_glass([a.class("w-12")], [view_toggle_theme(model.light_on)]),
+      h.div([a.class("flex-shrink-0")], [
+        view_timer(model.paused, model.time, model.light_on),
+      ]),
+      h.div([a.class("flex-grow z-20")], [
+        div_glass([a.class("w-12")], [
+          view_button_text(on_click: UserAddedParticle, label: "+"),
+        ]),
       ]),
     ]),
+    view_sim(model),
   ])
 }
 

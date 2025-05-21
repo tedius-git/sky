@@ -4160,6 +4160,9 @@ function fragment2(children) {
 function text3(content) {
   return text2(content);
 }
+function main(attrs, children) {
+  return element2("main", attrs, children);
+}
 function div(attrs, children) {
   return element2("div", attrs, children);
 }
@@ -5032,7 +5035,7 @@ function view_particle(particle) {
     throw makeError(
       "let_assert",
       "view",
-      271,
+      261,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -5044,7 +5047,7 @@ function view_particle(particle) {
     throw makeError(
       "let_assert",
       "view",
-      272,
+      262,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -5080,7 +5083,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      291,
+      281,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -5092,7 +5095,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      292,
+      282,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -5104,7 +5107,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      293,
+      283,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $2 }
@@ -5116,7 +5119,7 @@ function view_vector(center, to) {
     throw makeError(
       "let_assert",
       "view",
-      294,
+      284,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       { value: $3 }
@@ -5181,92 +5184,76 @@ function view(model) {
     _block$1 = class$("text-white");
   }
   let text$1 = _block$1;
-  return div(
-    toList([bg, text$1]),
+  return main(
+    toList([bg, text$1, class$("h-screen static flex h-full z-0")]),
     toList([
-      div(
-        toList([class$("h-screen")]),
+      a(
         toList([
-          div(
-            toList([class$("static flex h-full z-0")]),
+          class$("absolute bottom-5 right-5 size-4 z-40"),
+          target("_black"),
+          href("https://github.com/tedius-git/sky")
+        ]),
+        toList([
+          img(
             toList([
-              a(
-                toList([
-                  class$("absolute bottom-5 right-5 size-4 z-40"),
-                  target("_black"),
-                  href("https://github.com/tedius-git/sky")
-                ]),
-                toList([
-                  img(
-                    toList([
-                      guard(
-                        model.light_on,
-                        src("./priv/static/assets/github-mark.svg"),
-                        () => {
-                          return src(
-                            "./priv/static/assets/github-mark-white.svg"
-                          );
-                        }
-                      )
-                    ])
-                  )
-                ])
-              ),
-              div(
-                toList([
-                  class$(
-                    "absolute bottom-0 w-full z-20 flex flex-row items-end"
-                  )
-                ]),
-                toList([
-                  div(
-                    toList([class$("flex-grow z-20 flex justify-end")]),
-                    toList([
-                      div_glass(
-                        toList([class$("w-12")]),
-                        toList([
-                          view_switch(
-                            new UserToggleDebug(),
-                            model.debug,
-                            text3("i"),
-                            text3("i")
-                          )
-                        ])
-                      )
-                    ])
-                  ),
-                  div_glass(
-                    toList([class$("w-12")]),
-                    toList([view_toggle_theme(model.light_on)])
-                  ),
-                  div(
-                    toList([class$("flex-shrink-0")]),
-                    toList([
-                      view_timer(model.paused, model.time, model.light_on)
-                    ])
-                  ),
-                  div(
-                    toList([class$("flex-grow z-20")]),
-                    toList([
-                      div_glass(
-                        toList([class$("w-12")]),
-                        toList([view_button_text(new UserAddedParticle(), "+")])
-                      )
-                    ])
-                  )
-                ])
-              ),
-              view_sim(model)
+              guard(
+                model.light_on,
+                src("./priv/static/assets/github-mark.svg"),
+                () => {
+                  return src("./priv/static/assets/github-mark-white.svg");
+                }
+              )
             ])
           )
         ])
-      )
+      ),
+      div(
+        toList([
+          class$("absolute bottom-0 w-full z-20 flex flex-row items-end")
+        ]),
+        toList([
+          div(
+            toList([class$("flex-grow z-20 flex justify-end")]),
+            toList([
+              div_glass(
+                toList([class$("w-12")]),
+                toList([
+                  view_switch(
+                    new UserToggleDebug(),
+                    model.debug,
+                    text3("i"),
+                    text3("i")
+                  )
+                ])
+              )
+            ])
+          ),
+          div_glass(
+            toList([class$("w-12")]),
+            toList([view_toggle_theme(model.light_on)])
+          ),
+          div(
+            toList([class$("flex-shrink-0")]),
+            toList([view_timer(model.paused, model.time, model.light_on)])
+          ),
+          div(
+            toList([class$("flex-grow z-20")]),
+            toList([
+              div_glass(
+                toList([class$("w-12")]),
+                toList([view_button_text(new UserAddedParticle(), "+")])
+              )
+            ])
+          )
+        ])
+      ),
+      view_sim(model)
     ])
   );
 }
 
 // build/dev/javascript/sky/sky.mjs
-function main() {
+function main2() {
   let app = application(init, update2, view);
   let $ = start3(app, "#app", void 0);
   if (!$.isOk()) {
@@ -5283,4 +5270,4 @@ function main() {
 }
 
 // build/.lustre/entry.mjs
-main();
+main2();
