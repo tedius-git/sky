@@ -1221,10 +1221,6 @@ function first(pair) {
   let a2 = pair[0];
   return a2;
 }
-function second(pair) {
-  let a2 = pair[1];
-  return a2;
-}
 
 // build/dev/javascript/gleam_stdlib/gleam/list.mjs
 var Ascending = class extends CustomType {
@@ -1330,19 +1326,19 @@ function map2(list1, list22, fun) {
 function append_loop(loop$first, loop$second) {
   while (true) {
     let first3 = loop$first;
-    let second2 = loop$second;
+    let second = loop$second;
     if (first3 instanceof Empty) {
-      return second2;
+      return second;
     } else {
       let first$1 = first3.head;
       let rest$1 = first3.tail;
       loop$first = rest$1;
-      loop$second = prepend(first$1, second2);
+      loop$second = prepend(first$1, second);
     }
   }
 }
-function append(first3, second2) {
-  return append_loop(reverse(first3), second2);
+function append(first3, second) {
+  return append_loop(reverse(first3), second);
 }
 function fold(loop$list, loop$initial, loop$fun) {
   while (true) {
@@ -5459,6 +5455,19 @@ function view_colors() {
     )
   ]);
 }
+function get_particle_color(particle) {
+  let $ = particle.m < 5;
+  if ($) {
+    return "url(#RED)";
+  } else {
+    let $1 = particle.m < 8;
+    if ($1) {
+      return "url(#BLUE)";
+    } else {
+      return "url(#GREEN)";
+    }
+  }
+}
 function view_particle(particle) {
   let $ = x(particle.r);
   if (!($ instanceof Ok)) {
@@ -5466,15 +5475,15 @@ function view_particle(particle) {
       "let_assert",
       FILEPATH2,
       "view",
-      269,
+      284,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 7093,
-        end: 7133,
-        pattern_start: 7104,
-        pattern_end: 7109
+        start: 7389,
+        end: 7429,
+        pattern_start: 7400,
+        pattern_end: 7405
       }
     );
   }
@@ -5485,33 +5494,21 @@ function view_particle(particle) {
       "let_assert",
       FILEPATH2,
       "view",
-      270,
+      285,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 7136,
-        end: 7176,
-        pattern_start: 7147,
-        pattern_end: 7152
+        start: 7432,
+        end: 7472,
+        pattern_start: 7443,
+        pattern_end: 7448
       }
     );
   }
   let y2 = $1[0];
   let m = to_string(particle.m);
-  let _block;
-  let $2 = particle.m < 5;
-  if ($2) {
-    _block = "url(#RED)";
-  } else {
-    let $3 = particle.m < 8;
-    if ($3) {
-      _block = "url(#BLUE)";
-    } else {
-      _block = "url(#GREEN)";
-    }
-  }
-  let color = _block;
+  let color = get_particle_color(particle);
   return circle(
     toList([
       attribute2("r", m),
@@ -5531,28 +5528,30 @@ function view_arrow_marker() {
         attribute2("refY", "5"),
         attribute2("markerWidth", "6"),
         attribute2("markerHeight", "6"),
-        attribute2("orient", "auto-start-reverse")
+        attribute2("orient", "auto-start-reverse"),
+        attribute2("stroke", "context-stroke"),
+        attribute2("fill", "context-stroke")
       ]),
       toList([path(toList([attribute2("d", "M 0 0 L 10 5 L 0 10 z")]))])
     )
   ]);
 }
-function view_vector(center, to) {
+function view_vector(center, to, color) {
   let $ = x(center);
   if (!($ instanceof Ok)) {
     throw makeError(
       "let_assert",
       FILEPATH2,
       "view",
-      306,
+      316,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 8039,
-        end: 8076,
-        pattern_start: 8050,
-        pattern_end: 8056
+        start: 8316,
+        end: 8353,
+        pattern_start: 8327,
+        pattern_end: 8333
       }
     );
   }
@@ -5563,15 +5562,15 @@ function view_vector(center, to) {
       "let_assert",
       FILEPATH2,
       "view",
-      307,
+      317,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 8079,
-        end: 8116,
-        pattern_start: 8090,
-        pattern_end: 8096
+        start: 8356,
+        end: 8393,
+        pattern_start: 8367,
+        pattern_end: 8373
       }
     );
   }
@@ -5582,15 +5581,15 @@ function view_vector(center, to) {
       "let_assert",
       FILEPATH2,
       "view",
-      308,
+      318,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $2,
-        start: 8119,
-        end: 8194,
-        pattern_start: 8130,
-        pattern_end: 8136
+        start: 8396,
+        end: 8471,
+        pattern_start: 8407,
+        pattern_end: 8413
       }
     );
   }
@@ -5601,15 +5600,15 @@ function view_vector(center, to) {
       "let_assert",
       FILEPATH2,
       "view",
-      309,
+      319,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $3,
-        start: 8197,
-        end: 8272,
-        pattern_start: 8208,
-        pattern_end: 8214
+        start: 8474,
+        end: 8549,
+        pattern_start: 8485,
+        pattern_end: 8491
       }
     );
   }
@@ -5620,7 +5619,7 @@ function view_vector(center, to) {
       attribute2("y1", float_to_string(y1)),
       attribute2("x2", float_to_string(x2)),
       attribute2("y2", float_to_string(y2)),
-      attribute2("stroke", "black"),
+      attribute2("stroke", color),
       attribute2("marker-end", "url(#arrow)")
     ])
   );
@@ -5636,13 +5635,16 @@ function view_sim(model) {
         let forces2 = map(
           model.particles,
           (p2) => {
-            return [p2.r, sum_forces(p2, model.particles)];
+            return [p2.r, sum_forces(p2, model.particles), get_particle_color(p2)];
           }
         );
         _block = map(
           forces2,
           (v) => {
-            return view_vector(first(v), second(v));
+            let from2 = v[0];
+            let to = v[1];
+            let color = v[2];
+            return view_vector(from2, to, color);
           }
         );
       } else {

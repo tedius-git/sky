@@ -1,5 +1,6 @@
 // IMPORTS ---------------------------------------------------------------------
 import gleam/bool
+import gleam/dict
 import gleam/float
 import gleam/int
 import gleam/list
@@ -177,9 +178,12 @@ fn view_sim(model: Model) -> Element(Msg) {
         True -> {
           let forces =
             list.map(model.particles, fn(p) {
-              #(p.r, sum_forces(p, model.particles))
+              #(p.r, sum_forces(p, model.particles), get_particle_color(p))
             })
-          list.map(forces, fn(v) { view_vector(pair.first(v), pair.second(v)) })
+          list.map(forces, fn(v) {
+            let #(from, to, color) = v
+            view_vector(from, to, color)
+          })
         }
         False -> []
       }
@@ -265,11 +269,8 @@ fn view_colors() {
   ]
 }
 
-fn view_particle(particle: Particle) -> Element(Msg) {
-  let assert Ok(x) = vectors.x(particle.r)
-  let assert Ok(y) = vectors.y(particle.r)
-  let m = int.to_string(particle.m)
-  let color = case particle.m < 5 {
+fn get_particle_color(particle: Particle) {
+  case particle.m < 5 {
     True -> "url(#RED)"
     False ->
       case particle.m < 8 {
@@ -277,6 +278,13 @@ fn view_particle(particle: Particle) -> Element(Msg) {
         False -> "url(#GREEN)"
       }
   }
+}
+
+fn view_particle(particle: Particle) -> Element(Msg) {
+  let assert Ok(x) = vectors.x(particle.r)
+  let assert Ok(y) = vectors.y(particle.r)
+  let m = int.to_string(particle.m)
+  let color = get_particle_color(particle)
   svg.circle([
     a.attribute("r", m),
     a.attribute("cx", float.to_string(x)),
@@ -296,13 +304,15 @@ fn view_arrow_marker() {
         a.attribute("markerWidth", "6"),
         a.attribute("markerHeight", "6"),
         a.attribute("orient", "auto-start-reverse"),
+        a.attribute("stroke", "context-stroke"),
+        a.attribute("fill", "context-stroke"),
       ],
       [svg.path([a.attribute("d", "M 0 0 L 10 5 L 0 10 z")])],
     ),
   ]
 }
 
-fn view_vector(center: vectors.Vector, to: vectors.Vector) {
+fn view_vector(center: vectors.Vector, to: vectors.Vector, color: String) {
   let assert Ok(x1) = vectors.x(center)
   let assert Ok(y1) = vectors.y(center)
   let assert Ok(x2) = vectors.x(vectors.add(center, vectors.scale(50.0, to)))
@@ -312,7 +322,7 @@ fn view_vector(center: vectors.Vector, to: vectors.Vector) {
     a.attribute("y1", float.to_string(y1)),
     a.attribute("x2", float.to_string(x2)),
     a.attribute("y2", float.to_string(y2)),
-    a.attribute("stroke", "black"),
+    a.attribute("stroke", color),
     a.attribute("marker-end", "url(#arrow)"),
   ])
 }
