@@ -184,13 +184,15 @@ fn view_sim(model: Model) -> Element(Msg) {
         False -> []
       }
     }
-    |> list.append(particles_svg, _)
-    |> list.append([view_colors()])
+    |> list.append(particles_svg)
+    |> list.append([
+      svg.defs([], list.append(view_colors(), view_arrow_marker())),
+    ])
   })
 }
 
 fn view_colors() {
-  svg.defs([], [
+  [
     svg.linear_gradient(
       [
         a.id("RED"),
@@ -260,7 +262,7 @@ fn view_colors() {
         ]),
       ],
     ),
-  ])
+  ]
 }
 
 fn view_particle(particle: Particle) -> Element(Msg) {
@@ -283,6 +285,23 @@ fn view_particle(particle: Particle) -> Element(Msg) {
   ])
 }
 
+fn view_arrow_marker() {
+  [
+    svg.marker(
+      [
+        a.attribute("id", "arrow"),
+        a.attribute("viewBox", "0 0 10 10"),
+        a.attribute("refX", "5"),
+        a.attribute("refY", "5"),
+        a.attribute("markerWidth", "6"),
+        a.attribute("markerHeight", "6"),
+        a.attribute("orient", "auto-start-reverse"),
+      ],
+      [svg.path([a.attribute("d", "M 0 0 L 10 5 L 0 10 z")])],
+    ),
+  ]
+}
+
 fn view_vector(center: vectors.Vector, to: vectors.Vector) {
   let assert Ok(x1) = vectors.x(center)
   let assert Ok(y1) = vectors.y(center)
@@ -294,5 +313,6 @@ fn view_vector(center: vectors.Vector, to: vectors.Vector) {
     a.attribute("x2", float.to_string(x2)),
     a.attribute("y2", float.to_string(y2)),
     a.attribute("stroke", "black"),
+    a.attribute("marker-end", "url(#arrow)"),
   ])
 }
