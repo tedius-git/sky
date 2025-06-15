@@ -5475,15 +5475,15 @@ function view_particle(particle) {
       "let_assert",
       FILEPATH2,
       "view",
-      284,
+      282,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 7389,
-        end: 7429,
-        pattern_start: 7400,
-        pattern_end: 7405
+        start: 7353,
+        end: 7393,
+        pattern_start: 7364,
+        pattern_end: 7369
       }
     );
   }
@@ -5494,15 +5494,15 @@ function view_particle(particle) {
       "let_assert",
       FILEPATH2,
       "view",
-      285,
+      283,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 7432,
-        end: 7472,
-        pattern_start: 7443,
-        pattern_end: 7448
+        start: 7396,
+        end: 7436,
+        pattern_start: 7407,
+        pattern_end: 7412
       }
     );
   }
@@ -5543,15 +5543,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      316,
+      314,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 8316,
-        end: 8353,
-        pattern_start: 8327,
-        pattern_end: 8333
+        start: 8280,
+        end: 8317,
+        pattern_start: 8291,
+        pattern_end: 8297
       }
     );
   }
@@ -5562,15 +5562,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      317,
+      315,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 8356,
-        end: 8393,
-        pattern_start: 8367,
-        pattern_end: 8373
+        start: 8320,
+        end: 8357,
+        pattern_start: 8331,
+        pattern_end: 8337
       }
     );
   }
@@ -5581,15 +5581,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      318,
+      316,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $2,
-        start: 8396,
-        end: 8471,
-        pattern_start: 8407,
-        pattern_end: 8413
+        start: 8360,
+        end: 8435,
+        pattern_start: 8371,
+        pattern_end: 8377
       }
     );
   }
@@ -5600,15 +5600,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      319,
+      317,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $3,
-        start: 8474,
-        end: 8549,
-        pattern_start: 8485,
-        pattern_end: 8491
+        start: 8438,
+        end: 8513,
+        pattern_start: 8449,
+        pattern_end: 8455
       }
     );
   }

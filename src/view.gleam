@@ -1,10 +1,8 @@
 // IMPORTS ---------------------------------------------------------------------
 import gleam/bool
-import gleam/dict
 import gleam/float
 import gleam/int
 import gleam/list
-import gleam/pair
 import lustre/attribute as a
 import lustre/element.{type Element, text}
 import lustre/element/html as h
