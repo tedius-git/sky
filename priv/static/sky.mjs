@@ -5480,10 +5480,10 @@ function view_particle(particle) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 7353,
-        end: 7393,
-        pattern_start: 7364,
-        pattern_end: 7369
+        start: 7374,
+        end: 7414,
+        pattern_start: 7385,
+        pattern_end: 7390
       }
     );
   }
@@ -5499,10 +5499,10 @@ function view_particle(particle) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 7396,
-        end: 7436,
-        pattern_start: 7407,
-        pattern_end: 7412
+        start: 7417,
+        end: 7457,
+        pattern_start: 7428,
+        pattern_end: 7433
       }
     );
   }
@@ -5548,10 +5548,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 8280,
-        end: 8317,
-        pattern_start: 8291,
-        pattern_end: 8297
+        start: 8301,
+        end: 8338,
+        pattern_start: 8312,
+        pattern_end: 8318
       }
     );
   }
@@ -5567,10 +5567,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 8320,
-        end: 8357,
-        pattern_start: 8331,
-        pattern_end: 8337
+        start: 8341,
+        end: 8378,
+        pattern_start: 8352,
+        pattern_end: 8358
       }
     );
   }
@@ -5586,10 +5586,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $2,
-        start: 8360,
-        end: 8435,
-        pattern_start: 8371,
-        pattern_end: 8377
+        start: 8381,
+        end: 8456,
+        pattern_start: 8392,
+        pattern_end: 8398
       }
     );
   }
@@ -5605,10 +5605,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $3,
-        start: 8438,
-        end: 8513,
-        pattern_start: 8449,
-        pattern_end: 8455
+        start: 8459,
+        end: 8534,
+        pattern_start: 8470,
+        pattern_end: 8476
       }
     );
   }
@@ -5686,7 +5686,9 @@ function view(model) {
     toList([
       a(
         toList([
-          class$("absolute bottom-5 right-5 size-4 z-40"),
+          class$(
+            "absolute top-5 md:top-auto md:bottom-5 right-5 size-4 z-40"
+          ),
           target("_black"),
           href("https://github.com/tedius-git/sky")
         ]),

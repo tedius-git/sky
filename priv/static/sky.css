@@ -569,10 +569,6 @@ video {
   bottom: 0px;
 }
 
-.bottom-5 {
-  bottom: 1.25rem;
-}
-
 .bottom-6 {
   bottom: 1.5rem;
 }
@@ -772,4 +768,14 @@ video {
   --tw-backdrop-blur: blur(4px);
   -webkit-backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
           backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
+@media (min-width: 768px) {
+  .md\:bottom-5 {
+    bottom: 1.25rem;
+  }
+
+  .md\:top-auto {
+    top: auto;
+  }
 }

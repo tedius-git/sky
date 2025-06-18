@@ -31,7 +31,7 @@ pub fn view(model: Model) -> Element(Msg) {
     // Github repo link
     h.a(
       [
-        a.class("absolute bottom-5 right-5 size-4 z-40"),
+        a.class("absolute top-5 md:top-auto md:bottom-5 right-5 size-4 z-40"),
         a.target("_black"),
         a.href("https://github.com/tedius-git/sky"),
       ],
