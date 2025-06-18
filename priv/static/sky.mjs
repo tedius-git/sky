@@ -5323,7 +5323,9 @@ function view_toggle_paused(paused, light_on) {
 function view_timer(paused, time, light_on) {
   return div(
     toList([
-      class$("relative border-2 rounded-full m-4 size-32"),
+      class$(
+        "relative border-2 rounded-full m-4 size-32 transition duration-300 ease-in-out hover:scale-105"
+      ),
       guard(
         paused,
         class$("border-red-500"),
@@ -5475,15 +5477,15 @@ function view_particle(particle) {
       "let_assert",
       FILEPATH2,
       "view",
-      282,
+      291,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 7374,
-        end: 7414,
-        pattern_start: 7385,
-        pattern_end: 7390
+        start: 7717,
+        end: 7757,
+        pattern_start: 7728,
+        pattern_end: 7733
       }
     );
   }
@@ -5494,15 +5496,15 @@ function view_particle(particle) {
       "let_assert",
       FILEPATH2,
       "view",
-      283,
+      292,
       "view_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 7417,
-        end: 7457,
-        pattern_start: 7428,
-        pattern_end: 7433
+        start: 7760,
+        end: 7800,
+        pattern_start: 7771,
+        pattern_end: 7776
       }
     );
   }
@@ -5543,15 +5545,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      314,
+      323,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 8301,
-        end: 8338,
-        pattern_start: 8312,
-        pattern_end: 8318
+        start: 8644,
+        end: 8681,
+        pattern_start: 8655,
+        pattern_end: 8661
       }
     );
   }
@@ -5562,15 +5564,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      315,
+      324,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 8341,
-        end: 8378,
-        pattern_start: 8352,
-        pattern_end: 8358
+        start: 8684,
+        end: 8721,
+        pattern_start: 8695,
+        pattern_end: 8701
       }
     );
   }
@@ -5581,15 +5583,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      316,
+      325,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $2,
-        start: 8381,
-        end: 8456,
-        pattern_start: 8392,
-        pattern_end: 8398
+        start: 8724,
+        end: 8799,
+        pattern_start: 8735,
+        pattern_end: 8741
       }
     );
   }
@@ -5600,15 +5602,15 @@ function view_vector(center, to, color) {
       "let_assert",
       FILEPATH2,
       "view",
-      317,
+      326,
       "view_vector",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $3,
-        start: 8459,
-        end: 8534,
-        pattern_start: 8470,
-        pattern_end: 8476
+        start: 8802,
+        end: 8877,
+        pattern_start: 8813,
+        pattern_end: 8819
       }
     );
   }
@@ -5687,7 +5689,7 @@ function view(model) {
       a(
         toList([
           class$(
-            "absolute top-5 md:top-auto md:bottom-5 right-5 size-4 z-40"
+            "absolute top-5 md:top-auto md:bottom-5 right-5 size-4 z-40 transition duration-300 ease-in-out hover:scale-125"
           ),
           target("_black"),
           href("https://github.com/tedius-git/sky")
@@ -5715,7 +5717,11 @@ function view(model) {
             toList([class$("flex-grow z-20 flex justify-end")]),
             toList([
               div_glass(
-                toList([class$("w-12")]),
+                toList([
+                  class$(
+                    "w-12 transition duration-300 ease-in-out hover:scale-125"
+                  )
+                ]),
                 toList([
                   view_switch(
                     new UserToggleDebug(),
@@ -5728,7 +5734,11 @@ function view(model) {
             ])
           ),
           div_glass(
-            toList([class$("w-12")]),
+            toList([
+              class$(
+                "w-12 transition duration-300 ease-in-out hover:scale-125"
+              )
+            ]),
             toList([view_toggle_theme(model.light_on)])
           ),
           div(
@@ -5739,7 +5749,11 @@ function view(model) {
             toList([class$("flex-grow z-20")]),
             toList([
               div_glass(
-                toList([class$("w-12")]),
+                toList([
+                  class$(
+                    "w-12 transition duration-300 ease-in-out hover:scale-125"
+                  )
+                ]),
                 toList([view_button_text(new UserAddedParticle(), "+")])
               )
             ])

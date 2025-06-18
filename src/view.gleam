@@ -31,7 +31,9 @@ pub fn view(model: Model) -> Element(Msg) {
     // Github repo link
     h.a(
       [
-        a.class("absolute top-5 md:top-auto md:bottom-5 right-5 size-4 z-40"),
+        a.class(
+          "absolute top-5 md:top-auto md:bottom-5 right-5 size-4 z-40 transition duration-300 ease-in-out hover:scale-125",
+        ),
         a.target("_black"),
         a.href("https://github.com/tedius-git/sky"),
       ],
@@ -50,20 +52,25 @@ pub fn view(model: Model) -> Element(Msg) {
     h.div([a.class("absolute bottom-0 w-full z-20 flex flex-row items-end")], [
       // Buttons right
       h.div([a.class("flex-grow z-20 flex justify-end")], [
-        div_glass([a.class("w-12")], [
-          view_switch(UserToggleDebug, model.debug, h.text("i"), h.text("i")),
-        ]),
+        div_glass(
+          [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
+          [view_switch(UserToggleDebug, model.debug, h.text("i"), h.text("i"))],
+        ),
       ]),
       // Timer
-      div_glass([a.class("w-12")], [view_toggle_theme(model.light_on)]),
+      div_glass(
+        [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
+        [view_toggle_theme(model.light_on)],
+      ),
       h.div([a.class("flex-shrink-0")], [
         view_timer(model.paused, model.time, model.light_on),
       ]),
       // Buttons left
       h.div([a.class("flex-grow z-20")], [
-        div_glass([a.class("w-12")], [
-          view_button_text(on_click: UserAddedParticle, label: "+"),
-        ]),
+        div_glass(
+          [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
+          [view_button_text(on_click: UserAddedParticle, label: "+")],
+        ),
       ]),
     ]),
     // Simulation Svg
@@ -132,7 +139,9 @@ fn view_toggle_paused(paused: Bool, light_on: Bool) {
 fn view_timer(paused: Bool, time: Float, light_on: Bool) -> Element(Msg) {
   h.div(
     [
-      a.class("relative border-2 rounded-full m-4 size-32"),
+      a.class(
+        "relative border-2 rounded-full m-4 size-32 transition duration-300 ease-in-out hover:scale-105",
+      ),
       bool.guard(paused, a.class("border-red-500"), fn() {
         a.class("border-lime-900")
       }),
