@@ -136,7 +136,7 @@ fn view_toggle_paused(paused: Bool, light_on: Bool) {
   )
 }
 
-fn view_timer(paused: Bool, time: Float, light_on: Bool) -> Element(Msg) {
+fn view_timer(paused: Bool, _time: Float, light_on: Bool) -> Element(Msg) {
   h.div(
     [
       a.class(
@@ -150,9 +150,9 @@ fn view_timer(paused: Bool, time: Float, light_on: Bool) -> Element(Msg) {
       ),
     ],
     [
-      h.p([a.class("absolute inset-x-0 top-5 text-center")], [
-        text(int.to_string(float.truncate(time))),
-      ]),
+      // h.p([a.class("absolute inset-x-0 top-5 text-center")], [
+      //   text(int.to_string(float.truncate(time))),
+      // ]),
       h.div([a.class("absolute inset-0 flex justify-center items-center")], [
         view_toggle_paused(paused, light_on),
       ]),

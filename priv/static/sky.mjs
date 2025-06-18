@@ -1149,9 +1149,6 @@ function floor(float2) {
 function round(float2) {
   return Math.round(float2);
 }
-function truncate(float2) {
-  return Math.trunc(float2);
-}
 function random_uniform() {
   const random_uniform_result = Math.random();
   if (random_uniform_result === 1) {
@@ -4569,9 +4566,6 @@ function main(attrs, children) {
 function div(attrs, children) {
   return element2("div", attrs, children);
 }
-function p(attrs, children) {
-  return element2("p", attrs, children);
-}
 function a(attrs, children) {
   return element2("a", attrs, children);
 }
@@ -4830,11 +4824,11 @@ function forces(particle, others) {
   let g = 6674.3;
   return map(
     others,
-    (p2) => {
-      let dr = subtract(p2.r, particle.r);
+    (p) => {
+      let dr = subtract(p.r, particle.r);
       let r_squared = dot(dr, dr);
       let force_magnitude = divideFloat(
-        g * identity(particle.m) * identity(p2.m),
+        g * identity(particle.m) * identity(p.m),
         r_squared
       );
       let direction = normalize(dr);
@@ -4851,8 +4845,8 @@ function sum_forces(particle, all2) {
   let r = particle.r;
   let others = filter(
     all2,
-    (p2) => {
-      return negate2(equals(r, p2.r, 0.1));
+    (p) => {
+      return negate2(equals(r, p.r, 0.1));
     }
   );
   return fold(forces(particle, others), toList([0, 0]), add4);
@@ -5320,7 +5314,7 @@ function view_toggle_paused(paused, light_on) {
     img(toList([src("./priv/static/assets/play.png"), size2, invert]))
   );
 }
-function view_timer(paused, time, light_on) {
+function view_timer(paused, _, light_on) {
   return div(
     toList([
       class$(
@@ -5338,10 +5332,6 @@ function view_timer(paused, time, light_on) {
       )
     ]),
     toList([
-      p(
-        toList([class$("absolute inset-x-0 top-5 text-center")]),
-        toList([text2(to_string(truncate(time)))])
-      ),
       div(
         toList([class$("absolute inset-0 flex justify-center items-center")]),
         toList([view_toggle_paused(paused, light_on)])
@@ -5482,10 +5472,10 @@ function view_particle(particle) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 7717,
-        end: 7757,
-        pattern_start: 7728,
-        pattern_end: 7733
+        start: 7727,
+        end: 7767,
+        pattern_start: 7738,
+        pattern_end: 7743
       }
     );
   }
@@ -5501,10 +5491,10 @@ function view_particle(particle) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 7760,
-        end: 7800,
-        pattern_start: 7771,
-        pattern_end: 7776
+        start: 7770,
+        end: 7810,
+        pattern_start: 7781,
+        pattern_end: 7786
       }
     );
   }
@@ -5550,10 +5540,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 8644,
-        end: 8681,
-        pattern_start: 8655,
-        pattern_end: 8661
+        start: 8654,
+        end: 8691,
+        pattern_start: 8665,
+        pattern_end: 8671
       }
     );
   }
@@ -5569,10 +5559,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 8684,
-        end: 8721,
-        pattern_start: 8695,
-        pattern_end: 8701
+        start: 8694,
+        end: 8731,
+        pattern_start: 8705,
+        pattern_end: 8711
       }
     );
   }
@@ -5588,10 +5578,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $2,
-        start: 8724,
-        end: 8799,
-        pattern_start: 8735,
-        pattern_end: 8741
+        start: 8734,
+        end: 8809,
+        pattern_start: 8745,
+        pattern_end: 8751
       }
     );
   }
@@ -5607,10 +5597,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $3,
-        start: 8802,
-        end: 8877,
-        pattern_start: 8813,
-        pattern_end: 8819
+        start: 8812,
+        end: 8887,
+        pattern_start: 8823,
+        pattern_end: 8829
       }
     );
   }
@@ -5636,8 +5626,8 @@ function view_sim(model) {
       if ($) {
         let forces2 = map(
           model.particles,
-          (p2) => {
-            return [p2.r, sum_forces(p2, model.particles), get_particle_color(p2)];
+          (p) => {
+            return [p.r, sum_forces(p, model.particles), get_particle_color(p)];
           }
         );
         _block = map(
