@@ -1,8 +1,14 @@
+// IMPORTS ---------------------------------------------------------------------
 import gleam/float
 import gleam/list
+import lustre/attribute.{attribute}
+import lustre/element/svg.{line}
 
+// TYPE ---------------------------------------------------------------------
 pub type Vector =
   List(Float)
+
+// FUNCTIONS ---------------------------------------------------------------------
 
 pub fn x(v: Vector) {
   list.first(v)
@@ -61,4 +67,19 @@ pub fn mod(v: Vector) {
 
 pub fn normalize(v: Vector) {
   scale(1.0 /. mod(v), v)
+}
+
+pub fn to_svg(center: Vector, to: Vector, color: String) {
+  let assert Ok(x1) = x(center)
+  let assert Ok(y1) = y(center)
+  let assert Ok(x2) = x(add(center, scale(50.0, to)))
+  let assert Ok(y2) = y(add(center, scale(50.0, to)))
+  line([
+    attribute("x1", float.to_string(x1)),
+    attribute("y1", float.to_string(y1)),
+    attribute("x2", float.to_string(x2)),
+    attribute("y2", float.to_string(y2)),
+    attribute("stroke", color),
+    attribute("marker-end", "url(#arrow)"),
+  ])
 }

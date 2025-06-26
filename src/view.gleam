@@ -1,19 +1,17 @@
 // IMPORTS ---------------------------------------------------------------------
+import app.{
+  type Model, type Msg, UserAddedParticle, UserDecreseTime, UserIncreseTime,
+  UserToggleDebug, UserTogglePaused, UserToggleTheme,
+}
 import gleam/bool
-import gleam/float
-import gleam/int
 import gleam/list
 import lustre/attribute as a
 import lustre/element.{type Element}
 import lustre/element/html as h
 import lustre/element/svg
 import lustre/event
-import app.{
-  type Model, type Msg, UserAddedParticle, UserDecreseTime,
-  UserIncreseTime, UserToggleDebug, UserTogglePaused, UserToggleTheme,
-}
+import physics
 import vectors
-import physics.{type Particle,sum_forces}
 
 // VIEW ------------------------------------------------------------------------
 
@@ -179,17 +177,21 @@ fn view_timer(paused: Bool, _time: Float, light_on: Bool) -> Element(Msg) {
 
 fn view_sim(model: Model) -> Element(Msg) {
   h.svg([a.class("relative grow z-10 ")], {
-    let particles_svg = list.map(model.particles, view_particle)
+    let particles_svg = list.map(model.particles, physics.to_svg)
     {
       case model.debug {
         True -> {
           let forces =
             list.map(model.particles, fn(p) {
-              #(p.r, sum_forces(p, model.particles), get_particle_color(p))
+              #(
+                p.r,
+                physics.sum_forces(p, model.particles),
+                physics.get_color(p),
+              )
             })
           list.map(forces, fn(v) {
             let #(from, to, color) = v
-            view_vector(from, to, color)
+            vectors.to_svg(from, to, color)
           })
         }
         False -> []
@@ -276,30 +278,6 @@ fn view_colors() {
   ]
 }
 
-fn get_particle_color(particle: Particle) {
-  case particle.m < 5 {
-    True -> "url(#RED)"
-    False ->
-      case particle.m < 8 {
-        True -> "url(#BLUE)"
-        False -> "url(#GREEN)"
-      }
-  }
-}
-
-fn view_particle(particle: Particle) -> Element(Msg) {
-  let assert Ok(x) = vectors.x(particle.r)
-  let assert Ok(y) = vectors.y(particle.r)
-  let m = int.to_string(particle.m)
-  let color = get_particle_color(particle)
-  svg.circle([
-    a.attribute("r", m),
-    a.attribute("cx", float.to_string(x)),
-    a.attribute("cy", float.to_string(y)),
-    a.attribute("fill", color),
-  ])
-}
-
 fn view_arrow_marker() {
   [
     svg.marker(
@@ -317,19 +295,4 @@ fn view_arrow_marker() {
       [svg.path([a.attribute("d", "M 0 0 L 10 5 L 0 10 z")])],
     ),
   ]
-}
-
-fn view_vector(center: vectors.Vector, to: vectors.Vector, color: String) {
-  let assert Ok(x1) = vectors.x(center)
-  let assert Ok(y1) = vectors.y(center)
-  let assert Ok(x2) = vectors.x(vectors.add(center, vectors.scale(50.0, to)))
-  let assert Ok(y2) = vectors.y(vectors.add(center, vectors.scale(50.0, to)))
-  svg.line([
-    a.attribute("x1", float.to_string(x1)),
-    a.attribute("y1", float.to_string(y1)),
-    a.attribute("x2", float.to_string(x2)),
-    a.attribute("y2", float.to_string(y2)),
-    a.attribute("stroke", color),
-    a.attribute("marker-end", "url(#arrow)"),
-  ])
 }

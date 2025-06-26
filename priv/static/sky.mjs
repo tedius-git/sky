@@ -4696,7 +4696,32 @@ function start3(app, selector, start_args) {
   );
 }
 
+// build/dev/javascript/lustre/lustre/element/svg.mjs
+var namespace = "http://www.w3.org/2000/svg";
+function circle(attrs) {
+  return namespaced(namespace, "circle", attrs, empty_list);
+}
+function line(attrs) {
+  return namespaced(namespace, "line", attrs, empty_list);
+}
+function defs(attrs, children) {
+  return namespaced(namespace, "defs", attrs, children);
+}
+function marker(attrs, children) {
+  return namespaced(namespace, "marker", attrs, children);
+}
+function linear_gradient(attrs, children) {
+  return namespaced(namespace, "linearGradient", attrs, children);
+}
+function stop(attrs) {
+  return namespaced(namespace, "stop", attrs, empty_list);
+}
+function path(attrs) {
+  return namespaced(namespace, "path", attrs, empty_list);
+}
+
 // build/dev/javascript/sky/vectors.mjs
+var FILEPATH = "src/vectors.gleam";
 function x(v) {
   return first2(v);
 }
@@ -4756,8 +4781,97 @@ function mod(v) {
 function normalize(v) {
   return scale(divideFloat(1, mod(v)), v);
 }
+function to_svg(center, to, color) {
+  let $ = x(center);
+  if (!($ instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH,
+      "vectors",
+      73,
+      "to_svg",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $,
+        start: 1656,
+        end: 1685,
+        pattern_start: 1667,
+        pattern_end: 1673
+      }
+    );
+  }
+  let x1 = $[0];
+  let $1 = y(center);
+  if (!($1 instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH,
+      "vectors",
+      74,
+      "to_svg",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $1,
+        start: 1688,
+        end: 1717,
+        pattern_start: 1699,
+        pattern_end: 1705
+      }
+    );
+  }
+  let y1 = $1[0];
+  let $2 = x(add4(center, scale(50, to)));
+  if (!($2 instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH,
+      "vectors",
+      75,
+      "to_svg",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $2,
+        start: 1720,
+        end: 1771,
+        pattern_start: 1731,
+        pattern_end: 1737
+      }
+    );
+  }
+  let x2 = $2[0];
+  let $3 = y(add4(center, scale(50, to)));
+  if (!($3 instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH,
+      "vectors",
+      76,
+      "to_svg",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $3,
+        start: 1774,
+        end: 1825,
+        pattern_start: 1785,
+        pattern_end: 1791
+      }
+    );
+  }
+  let y2 = $3[0];
+  return line(
+    toList([
+      attribute2("x1", float_to_string(x1)),
+      attribute2("y1", float_to_string(y1)),
+      attribute2("x2", float_to_string(x2)),
+      attribute2("y2", float_to_string(y2)),
+      attribute2("stroke", color),
+      attribute2("marker-end", "url(#arrow)")
+    ])
+  );
+}
 
 // build/dev/javascript/sky/physics.mjs
+var FILEPATH2 = "src/physics.gleam";
 var Particle = class extends CustomType {
   constructor(m, r, v, a2) {
     super();
@@ -4798,6 +4912,69 @@ function sum_forces(particle, all2) {
   );
   return fold(forces(particle, others), toList([0, 0]), add4);
 }
+function get_color(particle) {
+  let $ = particle.m < 5;
+  if ($) {
+    return "url(#RED)";
+  } else {
+    let $1 = particle.m < 8;
+    if ($1) {
+      return "url(#BLUE)";
+    } else {
+      return "url(#GREEN)";
+    }
+  }
+}
+function to_svg2(particle) {
+  let $ = x(particle.r);
+  if (!($ instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH2,
+      "physics",
+      59,
+      "to_svg",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $,
+        start: 1503,
+        end: 1543,
+        pattern_start: 1514,
+        pattern_end: 1519
+      }
+    );
+  }
+  let x2 = $[0];
+  let $1 = y(particle.r);
+  if (!($1 instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH2,
+      "physics",
+      60,
+      "to_svg",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $1,
+        start: 1546,
+        end: 1586,
+        pattern_start: 1557,
+        pattern_end: 1562
+      }
+    );
+  }
+  let y2 = $1[0];
+  let m = to_string(particle.m);
+  let color = get_color(particle);
+  return circle(
+    toList([
+      attribute2("r", m),
+      attribute2("cx", float_to_string(x2)),
+      attribute2("cy", float_to_string(y2)),
+      attribute2("fill", color)
+    ])
+  );
+}
 
 // build/dev/javascript/sky/sky.ffi.mjs
 function set_interval(delay, callback) {
@@ -4814,7 +4991,7 @@ function get_window_height() {
 }
 
 // build/dev/javascript/sky/app.mjs
-var FILEPATH = "src/app.gleam";
+var FILEPATH3 = "src/app.gleam";
 var Model = class extends CustomType {
   constructor(debug, light_on, width, height, paused, particles, time, timer_id) {
     super();
@@ -4893,7 +5070,7 @@ function update_particle(particle, all2, time, width, height) {
   if (!($ instanceof Ok)) {
     throw makeError(
       "let_assert",
-      FILEPATH,
+      FILEPATH3,
       "app",
       100,
       "update_particle",
@@ -4912,7 +5089,7 @@ function update_particle(particle, all2, time, width, height) {
   if (!($1 instanceof Ok)) {
     throw makeError(
       "let_assert",
-      FILEPATH,
+      FILEPATH3,
       "app",
       101,
       "update_particle",
@@ -5191,30 +5368,6 @@ function update2(model, msg) {
   }
 }
 
-// build/dev/javascript/lustre/lustre/element/svg.mjs
-var namespace = "http://www.w3.org/2000/svg";
-function circle(attrs) {
-  return namespaced(namespace, "circle", attrs, empty_list);
-}
-function line(attrs) {
-  return namespaced(namespace, "line", attrs, empty_list);
-}
-function defs(attrs, children) {
-  return namespaced(namespace, "defs", attrs, children);
-}
-function marker(attrs, children) {
-  return namespaced(namespace, "marker", attrs, children);
-}
-function linear_gradient(attrs, children) {
-  return namespaced(namespace, "linearGradient", attrs, children);
-}
-function stop(attrs) {
-  return namespaced(namespace, "stop", attrs, empty_list);
-}
-function path(attrs) {
-  return namespaced(namespace, "path", attrs, empty_list);
-}
-
 // build/dev/javascript/lustre/lustre/event.mjs
 function is_immediate_event(name) {
   if (name === "input") {
@@ -5251,7 +5404,6 @@ function on_click(msg) {
 }
 
 // build/dev/javascript/sky/view.mjs
-var FILEPATH2 = "src/view.gleam";
 function view_switch(handle_click, on2, when_on, when_off) {
   return button(
     toList([on_click(handle_click)]),
@@ -5445,69 +5597,6 @@ function view_colors() {
     )
   ]);
 }
-function get_particle_color(particle) {
-  let $ = particle.m < 5;
-  if ($) {
-    return "url(#RED)";
-  } else {
-    let $1 = particle.m < 8;
-    if ($1) {
-      return "url(#BLUE)";
-    } else {
-      return "url(#GREEN)";
-    }
-  }
-}
-function view_particle(particle) {
-  let $ = x(particle.r);
-  if (!($ instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH2,
-      "view",
-      291,
-      "view_particle",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $,
-        start: 7732,
-        end: 7772,
-        pattern_start: 7743,
-        pattern_end: 7748
-      }
-    );
-  }
-  let x2 = $[0];
-  let $1 = y(particle.r);
-  if (!($1 instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH2,
-      "view",
-      292,
-      "view_particle",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $1,
-        start: 7775,
-        end: 7815,
-        pattern_start: 7786,
-        pattern_end: 7791
-      }
-    );
-  }
-  let y2 = $1[0];
-  let m = to_string(particle.m);
-  let color = get_particle_color(particle);
-  return circle(
-    toList([
-      attribute2("r", m),
-      attribute2("cx", float_to_string(x2)),
-      attribute2("cy", float_to_string(y2)),
-      attribute2("fill", color)
-    ])
-  );
-}
 function view_arrow_marker() {
   return toList([
     marker(
@@ -5526,106 +5615,22 @@ function view_arrow_marker() {
     )
   ]);
 }
-function view_vector(center, to, color) {
-  let $ = x(center);
-  if (!($ instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH2,
-      "view",
-      323,
-      "view_vector",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $,
-        start: 8659,
-        end: 8696,
-        pattern_start: 8670,
-        pattern_end: 8676
-      }
-    );
-  }
-  let x1 = $[0];
-  let $1 = y(center);
-  if (!($1 instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH2,
-      "view",
-      324,
-      "view_vector",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $1,
-        start: 8699,
-        end: 8736,
-        pattern_start: 8710,
-        pattern_end: 8716
-      }
-    );
-  }
-  let y1 = $1[0];
-  let $2 = x(add4(center, scale(50, to)));
-  if (!($2 instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH2,
-      "view",
-      325,
-      "view_vector",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $2,
-        start: 8739,
-        end: 8814,
-        pattern_start: 8750,
-        pattern_end: 8756
-      }
-    );
-  }
-  let x2 = $2[0];
-  let $3 = y(add4(center, scale(50, to)));
-  if (!($3 instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH2,
-      "view",
-      326,
-      "view_vector",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $3,
-        start: 8817,
-        end: 8892,
-        pattern_start: 8828,
-        pattern_end: 8834
-      }
-    );
-  }
-  let y2 = $3[0];
-  return line(
-    toList([
-      attribute2("x1", float_to_string(x1)),
-      attribute2("y1", float_to_string(y1)),
-      attribute2("x2", float_to_string(x2)),
-      attribute2("y2", float_to_string(y2)),
-      attribute2("stroke", color),
-      attribute2("marker-end", "url(#arrow)")
-    ])
-  );
-}
 function view_sim(model) {
   return svg(
     toList([class$("relative grow z-10 ")]),
     (() => {
-      let particles_svg = map(model.particles, view_particle);
+      let particles_svg = map(model.particles, to_svg2);
       let _block;
       let $ = model.debug;
       if ($) {
         let forces2 = map(
           model.particles,
           (p) => {
-            return [p.r, sum_forces(p, model.particles), get_particle_color(p)];
+            return [
+              p.r,
+              sum_forces(p, model.particles),
+              get_color(p)
+            ];
           }
         );
         _block = map(
@@ -5634,7 +5639,7 @@ function view_sim(model) {
             let from2 = v[0];
             let to = v[1];
             let color = v[2];
-            return view_vector(from2, to, color);
+            return to_svg(from2, to, color);
           }
         );
       } else {
@@ -5754,14 +5759,14 @@ function view(model) {
 }
 
 // build/dev/javascript/sky/sky.mjs
-var FILEPATH3 = "src/sky.gleam";
+var FILEPATH4 = "src/sky.gleam";
 function main2() {
   let app = application(init, update2, view);
   let $ = start3(app, "#app", void 0);
   if (!($ instanceof Ok)) {
     throw makeError(
       "let_assert",
-      FILEPATH3,
+      FILEPATH4,
       "sky",
       11,
       "main",
