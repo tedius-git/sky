@@ -1,8 +1,7 @@
 // IMPORTS ---------------------------------------------------------------------
 
 import lustre
-import model.{init}
-import update.{update}
+import app.{init,update}
 import view.{view}
 
 // MAIN ------------------------------------------------------------------------

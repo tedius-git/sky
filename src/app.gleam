@@ -1,19 +1,70 @@
 // IMPORTS ---------------------------------------------------------------------
+import gleam/option.{type Option, None,Some}
+import lustre/effect.{type Effect}
+import physics.{type Particle,Particle,sum_forces}
 import gleam/bool
 import gleam/float
 import gleam/int
 import gleam/list
-import gleam/option.{None, Some}
 import gleam/pair
 import gleam/result
-import lustre/effect.{type Effect}
-import types.{
-  type Model, type Msg, type Particle, IncreseTime, Model, Particle,
-  TimerStarted, UpdateParticles, UserAddedParticle, UserDecreseTime,
-  UserIncreseTime, UserToggleDebug, UserTogglePaused, UserToggleTheme,
-  sum_forces,
-}
 import vectors
+
+// Types -----------------------------------------------------------------------
+
+pub type Model {
+  Model(
+    debug: Bool,
+    light_on: Bool,
+    width: Float,
+    height: Float,
+    paused: Bool,
+    particles: List(Particle),
+    time: Float,
+    timer_id: Option(Int),
+  )
+}
+
+pub type Msg {
+  UserTogglePaused
+  UserToggleDebug
+  UserToggleTheme
+  IncreseTime
+  TimerStarted(Int)
+  UserAddedParticle
+  UserIncreseTime
+  UserDecreseTime
+  UpdateParticles(Float)
+}
+
+// Model -----------------------------------------------------------------------
+
+@external(javascript, "./sky.ffi.mjs", "get_window_width")
+fn get_window_width() -> Float {
+  800.0
+  // Default
+}
+
+@external(javascript, "./sky.ffi.mjs", "get_window_height")
+fn get_window_height() -> Float {
+  600.0
+  // Default
+}
+
+pub fn init(_args) -> #(Model, Effect(Msg)) {
+  let model =
+    Model(
+      debug: False,
+      light_on: True,
+      paused: True,
+      width: get_window_width(),
+      height: get_window_height(),
+      particles: [],
+      time: 0.0,
+      timer_id: None,
+    )
+  #(model, effect.none())
+}
 
 //Effects ----------------------------------------------------------------
 fn start_timer() -> Effect(Msg) {

@@ -1,33 +1,8 @@
 import gleam/bool
 import gleam/int
 import gleam/list
-import gleam/option.{type Option}
 import vectors.{type Vector}
 
-pub type Model {
-  Model(
-    debug: Bool,
-    light_on: Bool,
-    width: Float,
-    height: Float,
-    paused: Bool,
-    particles: List(Particle),
-    time: Float,
-    timer_id: Option(Int),
-  )
-}
-
-pub type Msg {
-  UserTogglePaused
-  UserToggleDebug
-  UserToggleTheme
-  IncreseTime
-  TimerStarted(Int)
-  UserAddedParticle
-  UserIncreseTime
-  UserDecreseTime
-  UpdateParticles(Float)
-}
 
 pub type Particle {
   Particle(m: Int, r: Vector, v: Vector, a: Vector)

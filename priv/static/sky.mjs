@@ -4696,20 +4696,6 @@ function start3(app, selector, start_args) {
   );
 }
 
-// build/dev/javascript/sky/sky.ffi.mjs
-function set_interval(delay, callback) {
-  return setInterval(callback, delay);
-}
-function clear_interval(timerId) {
-  clearInterval(timerId);
-}
-function get_window_width() {
-  return window.innerWidth;
-}
-function get_window_height() {
-  return window.innerHeight;
-}
-
 // build/dev/javascript/sky/vectors.mjs
 function x(v) {
   return first2(v);
@@ -4771,46 +4757,7 @@ function normalize(v) {
   return scale(divideFloat(1, mod(v)), v);
 }
 
-// build/dev/javascript/sky/types.mjs
-var Model = class extends CustomType {
-  constructor(debug, light_on, width, height, paused, particles, time, timer_id) {
-    super();
-    this.debug = debug;
-    this.light_on = light_on;
-    this.width = width;
-    this.height = height;
-    this.paused = paused;
-    this.particles = particles;
-    this.time = time;
-    this.timer_id = timer_id;
-  }
-};
-var UserTogglePaused = class extends CustomType {
-};
-var UserToggleDebug = class extends CustomType {
-};
-var UserToggleTheme = class extends CustomType {
-};
-var IncreseTime = class extends CustomType {
-};
-var TimerStarted = class extends CustomType {
-  constructor($0) {
-    super();
-    this[0] = $0;
-  }
-};
-var UserAddedParticle = class extends CustomType {
-};
-var UserIncreseTime = class extends CustomType {
-};
-var UserDecreseTime = class extends CustomType {
-};
-var UpdateParticles = class extends CustomType {
-  constructor($0) {
-    super();
-    this[0] = $0;
-  }
-};
+// build/dev/javascript/sky/physics.mjs
 var Particle = class extends CustomType {
   constructor(m, r, v, a2) {
     super();
@@ -4852,7 +4799,61 @@ function sum_forces(particle, all2) {
   return fold(forces(particle, others), toList([0, 0]), add4);
 }
 
-// build/dev/javascript/sky/model.mjs
+// build/dev/javascript/sky/sky.ffi.mjs
+function set_interval(delay, callback) {
+  return setInterval(callback, delay);
+}
+function clear_interval(timerId) {
+  clearInterval(timerId);
+}
+function get_window_width() {
+  return window.innerWidth;
+}
+function get_window_height() {
+  return window.innerHeight;
+}
+
+// build/dev/javascript/sky/app.mjs
+var FILEPATH = "src/app.gleam";
+var Model = class extends CustomType {
+  constructor(debug, light_on, width, height, paused, particles, time, timer_id) {
+    super();
+    this.debug = debug;
+    this.light_on = light_on;
+    this.width = width;
+    this.height = height;
+    this.paused = paused;
+    this.particles = particles;
+    this.time = time;
+    this.timer_id = timer_id;
+  }
+};
+var UserTogglePaused = class extends CustomType {
+};
+var UserToggleDebug = class extends CustomType {
+};
+var UserToggleTheme = class extends CustomType {
+};
+var IncreseTime = class extends CustomType {
+};
+var TimerStarted = class extends CustomType {
+  constructor($0) {
+    super();
+    this[0] = $0;
+  }
+};
+var UserAddedParticle = class extends CustomType {
+};
+var UserIncreseTime = class extends CustomType {
+};
+var UserDecreseTime = class extends CustomType {
+};
+var UpdateParticles = class extends CustomType {
+  constructor($0) {
+    super();
+    this[0] = $0;
+  }
+};
 function init(_) {
   let model = new Model(
     false,
@@ -4866,9 +4867,6 @@ function init(_) {
   );
   return [model, none()];
 }
-
-// build/dev/javascript/sky/update.mjs
-var FILEPATH = "src/update.gleam";
 function start_timer() {
   return from(
     (dispatch) => {
@@ -4896,16 +4894,16 @@ function update_particle(particle, all2, time, width, height) {
     throw makeError(
       "let_assert",
       FILEPATH,
-      "update",
-      49,
+      "app",
+      100,
       "update_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 1243,
-        end: 1283,
-        pattern_start: 1254,
-        pattern_end: 1259
+        start: 2148,
+        end: 2188,
+        pattern_start: 2159,
+        pattern_end: 2164
       }
     );
   }
@@ -4915,16 +4913,16 @@ function update_particle(particle, all2, time, width, height) {
     throw makeError(
       "let_assert",
       FILEPATH,
-      "update",
-      50,
+      "app",
+      101,
       "update_particle",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 1286,
-        end: 1326,
-        pattern_start: 1297,
-        pattern_end: 1302
+        start: 2191,
+        end: 2231,
+        pattern_start: 2202,
+        pattern_end: 2207
       }
     );
   }
@@ -5472,10 +5470,10 @@ function view_particle(particle) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 7727,
-        end: 7767,
-        pattern_start: 7738,
-        pattern_end: 7743
+        start: 7732,
+        end: 7772,
+        pattern_start: 7743,
+        pattern_end: 7748
       }
     );
   }
@@ -5491,10 +5489,10 @@ function view_particle(particle) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 7770,
-        end: 7810,
-        pattern_start: 7781,
-        pattern_end: 7786
+        start: 7775,
+        end: 7815,
+        pattern_start: 7786,
+        pattern_end: 7791
       }
     );
   }
@@ -5540,10 +5538,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 8654,
-        end: 8691,
-        pattern_start: 8665,
-        pattern_end: 8671
+        start: 8659,
+        end: 8696,
+        pattern_start: 8670,
+        pattern_end: 8676
       }
     );
   }
@@ -5559,10 +5557,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 8694,
-        end: 8731,
-        pattern_start: 8705,
-        pattern_end: 8711
+        start: 8699,
+        end: 8736,
+        pattern_start: 8710,
+        pattern_end: 8716
       }
     );
   }
@@ -5578,10 +5576,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $2,
-        start: 8734,
-        end: 8809,
-        pattern_start: 8745,
-        pattern_end: 8751
+        start: 8739,
+        end: 8814,
+        pattern_start: 8750,
+        pattern_end: 8756
       }
     );
   }
@@ -5597,10 +5595,10 @@ function view_vector(center, to, color) {
       "Pattern match failed, no pattern matched the value.",
       {
         value: $3,
-        start: 8812,
-        end: 8887,
-        pattern_start: 8823,
-        pattern_end: 8829
+        start: 8817,
+        end: 8892,
+        pattern_start: 8828,
+        pattern_end: 8834
       }
     );
   }
@@ -5672,9 +5670,9 @@ function view(model) {
   } else {
     _block$1 = class$("text-white");
   }
-  let text$1 = _block$1;
+  let text4 = _block$1;
   return main(
-    toList([bg, text$1, class$("h-screen static flex h-full z-0")]),
+    toList([bg, text4, class$("h-screen static flex h-full z-0")]),
     toList([
       a(
         toList([
@@ -5765,10 +5763,10 @@ function main2() {
       "let_assert",
       FILEPATH3,
       "sky",
-      12,
+      11,
       "main",
       "Pattern match failed, no pattern matched the value.",
-      { value: $, start: 310, end: 359, pattern_start: 321, pattern_end: 326 }
+      { value: $, start: 292, end: 341, pattern_start: 303, pattern_end: 308 }
     );
   }
   return void 0;

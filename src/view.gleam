@@ -4,16 +4,16 @@ import gleam/float
 import gleam/int
 import gleam/list
 import lustre/attribute as a
-import lustre/element.{type Element, text}
+import lustre/element.{type Element}
 import lustre/element/html as h
 import lustre/element/svg
 import lustre/event
-import types.{
-  type Model, type Msg, type Particle, UserAddedParticle, UserDecreseTime,
+import app.{
+  type Model, type Msg, UserAddedParticle, UserDecreseTime,
   UserIncreseTime, UserToggleDebug, UserTogglePaused, UserToggleTheme,
-  sum_forces,
 }
 import vectors
+import physics.{type Particle,sum_forces}
 
 // VIEW ------------------------------------------------------------------------
 
