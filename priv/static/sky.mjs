@@ -4912,6 +4912,75 @@ function sum_forces(particle, all2) {
   );
   return fold(forces(particle, others), toList([0, 0]), add4);
 }
+function new_particle(width, height) {
+  return new Particle(
+    3 + random(7),
+    toList([random_uniform() * width, random_uniform() * height]),
+    toList([random_uniform() * 10 - 5, random_uniform() * 10 - 5]),
+    toList([0, 0])
+  );
+}
+function update_particle(particle, all2, time, width, height) {
+  let $ = x(particle.r);
+  if (!($ instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH2,
+      "physics",
+      63,
+      "update_particle",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $,
+        start: 1645,
+        end: 1685,
+        pattern_start: 1656,
+        pattern_end: 1661
+      }
+    );
+  }
+  let x2 = $[0];
+  let $1 = y(particle.r);
+  if (!($1 instanceof Ok)) {
+    throw makeError(
+      "let_assert",
+      FILEPATH2,
+      "physics",
+      64,
+      "update_particle",
+      "Pattern match failed, no pattern matched the value.",
+      {
+        value: $1,
+        start: 1688,
+        end: 1728,
+        pattern_start: 1699,
+        pattern_end: 1704
+      }
+    );
+  }
+  let y2 = $1[0];
+  let r = particle.r;
+  let v = particle.v;
+  let a2 = particle.a;
+  let $2 = x2 <= width;
+  let $3 = y2 <= height;
+  if ($3) {
+    if ($2) {
+      return new Ok(
+        new Particle(
+          particle.m,
+          add4(r, scale(time, v)),
+          add4(v, scale(time, a2)),
+          sum_forces(particle, all2)
+        )
+      );
+    } else {
+      return new Error("Particle out of window");
+    }
+  } else {
+    return new Error("Particle out of window");
+  }
+}
 function get_color(particle) {
   let $ = particle.m < 5;
   if ($) {
@@ -4932,15 +5001,15 @@ function to_svg2(particle) {
       "let_assert",
       FILEPATH2,
       "physics",
-      59,
+      92,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $,
-        start: 1503,
-        end: 1543,
-        pattern_start: 1514,
-        pattern_end: 1519
+        start: 2328,
+        end: 2368,
+        pattern_start: 2339,
+        pattern_end: 2344
       }
     );
   }
@@ -4951,15 +5020,15 @@ function to_svg2(particle) {
       "let_assert",
       FILEPATH2,
       "physics",
-      60,
+      93,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       {
         value: $1,
-        start: 1546,
-        end: 1586,
-        pattern_start: 1557,
-        pattern_end: 1562
+        start: 2371,
+        end: 2411,
+        pattern_start: 2382,
+        pattern_end: 2387
       }
     );
   }
@@ -4991,7 +5060,6 @@ function get_window_height() {
 }
 
 // build/dev/javascript/sky/app.mjs
-var FILEPATH3 = "src/app.gleam";
 var Model = class extends CustomType {
   constructor(debug, light_on, width, height, paused, particles, time, timer_id) {
     super();
@@ -5064,67 +5132,6 @@ function stop_timer(timer_id) {
       return void 0;
     }
   );
-}
-function update_particle(particle, all2, time, width, height) {
-  let $ = x(particle.r);
-  if (!($ instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH3,
-      "app",
-      100,
-      "update_particle",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $,
-        start: 2148,
-        end: 2188,
-        pattern_start: 2159,
-        pattern_end: 2164
-      }
-    );
-  }
-  let x2 = $[0];
-  let $1 = y(particle.r);
-  if (!($1 instanceof Ok)) {
-    throw makeError(
-      "let_assert",
-      FILEPATH3,
-      "app",
-      101,
-      "update_particle",
-      "Pattern match failed, no pattern matched the value.",
-      {
-        value: $1,
-        start: 2191,
-        end: 2231,
-        pattern_start: 2202,
-        pattern_end: 2207
-      }
-    );
-  }
-  let y2 = $1[0];
-  let r = particle.r;
-  let v = particle.v;
-  let a2 = particle.a;
-  let $2 = x2 <= width;
-  let $3 = y2 <= height;
-  if ($3) {
-    if ($2) {
-      return new Ok(
-        new Particle(
-          particle.m,
-          add4(r, scale(time, v)),
-          add4(v, scale(time, a2)),
-          sum_forces(particle, all2)
-        )
-      );
-    } else {
-      return new Error("Particle out of window");
-    }
-  } else {
-    return new Error("Particle out of window");
-  }
 }
 function update_particles_effect(delta) {
   return from(
@@ -5273,20 +5280,7 @@ function update2(model, msg) {
           _record.paused,
           append(
             particles,
-            toList([
-              new Particle(
-                3 + random(7),
-                toList([
-                  random_uniform() * model.width,
-                  random_uniform() * model.height
-                ]),
-                toList([
-                  random_uniform() * 10 - 5,
-                  random_uniform() * 10 - 5
-                ]),
-                toList([0, 0])
-              )
-            ])
+            toList([new_particle(model.width, model.height)])
           ),
           _record.time,
           _record.timer_id
@@ -5759,14 +5753,14 @@ function view(model) {
 }
 
 // build/dev/javascript/sky/sky.mjs
-var FILEPATH4 = "src/sky.gleam";
+var FILEPATH3 = "src/sky.gleam";
 function main2() {
   let app = application(init, update2, view);
   let $ = start3(app, "#app", void 0);
   if (!($ instanceof Ok)) {
     throw makeError(
       "let_assert",
-      FILEPATH4,
+      FILEPATH3,
       "sky",
       11,
       "main",

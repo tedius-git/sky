@@ -1,14 +1,11 @@
 // IMPORTS ---------------------------------------------------------------------
-import gleam/option.{type Option, None,Some}
-import lustre/effect.{type Effect}
-import physics.{type Particle,Particle,sum_forces}
 import gleam/bool
-import gleam/float
-import gleam/int
 import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/pair
 import gleam/result
-import vectors
+import lustre/effect.{type Effect}
+import physics.{type Particle, new_particle, update_particle}
 
 // Types -----------------------------------------------------------------------
 
@@ -90,30 +87,6 @@ fn clear_interval(_timer_id: Int) -> Nil {
   Nil
 }
 
-fn update_particle(
-  particle: Particle,
-  all: List(Particle),
-  time: Float,
-  width: Float,
-  height: Float,
-) -> Result(Particle, String) {
-  let assert Ok(x) = vectors.x(particle.r)
-  let assert Ok(y) = vectors.y(particle.r)
-  let r = particle.r
-  let v = particle.v
-  let a = particle.a
-  case x <=. width, y <=. height {
-    True, True ->
-      Ok(Particle(
-        r: vectors.add(r, vectors.scale(time, v)),
-        v: vectors.add(v, vectors.scale(time, a)),
-        a: sum_forces(particle, all),
-        m: particle.m,
-      ))
-    _, _ -> Error("Particle out of window")
-  }
-}
-
 fn update_particles_effect(delta: Float) -> Effect(Msg) {
   use dispatch <- effect.from
   dispatch(UpdateParticles(delta))
@@ -157,12 +130,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       Model(
         ..model,
         particles: list.append(particles, [
-          Particle(
-            r: [float.random() *. model.width, float.random() *. model.height],
-            v: [float.random() *. 10.0 -. 5.0, float.random() *. 10.0 -. 5.0],
-            a: [0.0, 0.0],
-            m: 3 + int.random(7),
-          ),
+          new_particle(model.width, model.height),
         ]),
       ),
       effect.none(),

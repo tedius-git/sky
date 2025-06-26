@@ -44,6 +44,39 @@ pub fn sum_forces(particle: Particle, all: List(Particle)) -> vectors.Vector {
   list.fold(forces(particle, others), [0.0, 0.0], vectors.add)
 }
 
+pub fn new_particle(width, height) {
+  Particle(
+    r: [float.random() *. width, float.random() *. height],
+    v: [float.random() *. 10.0 -. 5.0, float.random() *. 10.0 -. 5.0],
+    a: [0.0, 0.0],
+    m: 3 + int.random(7),
+  )
+}
+
+pub fn update_particle(
+  particle: Particle,
+  all: List(Particle),
+  time: Float,
+  width: Float,
+  height: Float,
+) -> Result(Particle, String) {
+  let assert Ok(x) = vectors.x(particle.r)
+  let assert Ok(y) = vectors.y(particle.r)
+  let r = particle.r
+  let v = particle.v
+  let a = particle.a
+  case x <=. width, y <=. height {
+    True, True ->
+      Ok(Particle(
+        r: vectors.add(r, vectors.scale(time, v)),
+        v: vectors.add(v, vectors.scale(time, a)),
+        a: sum_forces(particle, all),
+        m: particle.m,
+      ))
+    _, _ -> Error("Particle out of window")
+  }
+}
+
 pub fn get_color(particle: Particle) {
   case particle.m < 5 {
     True -> "url(#RED)"
