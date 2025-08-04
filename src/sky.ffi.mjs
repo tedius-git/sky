@@ -17,3 +17,19 @@ export function get_window_width() {
 export function get_window_height() {
     return window.innerHeight;
 }
+
+export function setup_mouse_listener(dispatch) {
+    const handleMouseMove = (event) => {
+        const rect = event.target.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        dispatch(x, y);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+    };
+}

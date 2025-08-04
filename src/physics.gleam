@@ -44,9 +44,10 @@ pub fn sum_forces(particle: Particle, all: List(Particle)) -> vectors.Vector {
   list.fold(forces(particle, others), [0.0, 0.0], vectors.add)
 }
 
-pub fn new_particle(width, height) {
+pub fn new_particle(r: vectors.Vector) {
+  let assert [x, y] = r
   Particle(
-    r: [float.random() *. width, float.random() *. height],
+    r: [x, y],
     v: [float.random() *. 10.0 -. 5.0, float.random() *. 10.0 -. 5.0],
     a: [0.0, 0.0],
     m: 3 + int.random(7),

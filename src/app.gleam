@@ -6,6 +6,7 @@ import gleam/pair
 import gleam/result
 import lustre/effect.{type Effect}
 import physics.{type Particle, new_particle, update_particle}
+import vectors
 
 // Types -----------------------------------------------------------------------
 
@@ -19,6 +20,7 @@ pub type Model {
     particles: List(Particle),
     time: Float,
     timer_id: Option(Int),
+    mouse: vectors.Vector,
   )
 }
 
@@ -32,6 +34,7 @@ pub type Msg {
   UserIncreseTime
   UserDecreseTime
   UpdateParticles(Float)
+  MouseMoved(Float, Float)
 }
 
 // Model -----------------------------------------------------------------------
@@ -59,8 +62,9 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
       particles: [],
       time: 0.0,
       timer_id: None,
+      mouse: [100.0, 100.0],
     )
-  #(model, effect.none())
+  #(model, setup_mouse_tracking())
 }
 
 //Effects ----------------------------------------------------------------
@@ -90,6 +94,16 @@ fn clear_interval(_timer_id: Int) -> Nil {
 fn update_particles_effect(delta: Float) -> Effect(Msg) {
   use dispatch <- effect.from
   dispatch(UpdateParticles(delta))
+}
+
+@external(javascript, "./sky.ffi.mjs", "setup_mouse_listener")
+fn setup_mouse_listener(dispatch: fn(Float, Float) -> Nil) -> fn() -> Nil
+
+fn setup_mouse_tracking() -> Effect(Msg) {
+  use dispatch <- effect.from
+  let _cleanup_fn =
+    setup_mouse_listener(fn(x, y) { dispatch(MouseMoved(x, y)) })
+  Nil
 }
 
 // UPDATE ----------------------------------------------------------------------
@@ -129,9 +143,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     UserAddedParticle -> #(
       Model(
         ..model,
-        particles: list.append(particles, [
-          new_particle(model.width, model.height),
-        ]),
+        particles: list.append(particles, [new_particle(model.mouse)]),
       ),
       effect.none(),
     )
@@ -161,5 +173,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       }),
       effect.none(),
     )
+    MouseMoved(x, y) -> #(Model(..model, mouse: [x, y]), effect.none())
   }
 }

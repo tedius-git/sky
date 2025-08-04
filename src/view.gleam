@@ -56,10 +56,6 @@ pub fn view(model: Model) -> Element(Msg) {
         ),
       ]),
       // Timer
-      div_glass(
-        [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
-        [view_toggle_theme(model.light_on)],
-      ),
       h.div([a.class("flex-shrink-0")], [
         view_timer(model.paused, model.time, model.light_on),
       ]),
@@ -67,7 +63,7 @@ pub fn view(model: Model) -> Element(Msg) {
       h.div([a.class("flex-grow z-20")], [
         div_glass(
           [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
-          [view_button_text(on_click: UserAddedParticle, label: "+")],
+          [view_toggle_theme(model.light_on)],
         ),
       ]),
     ]),
@@ -176,7 +172,7 @@ fn view_timer(paused: Bool, _time: Float, light_on: Bool) -> Element(Msg) {
 }
 
 fn view_sim(model: Model) -> Element(Msg) {
-  h.svg([a.class("relative grow z-10 ")], {
+  h.svg([a.class("relative grow z-10 "), event.on_click(UserAddedParticle)], {
     let particles_svg = list.map(model.particles, physics.to_svg)
     {
       case model.debug {

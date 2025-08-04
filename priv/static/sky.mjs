@@ -1835,7 +1835,7 @@ var EMPTY_SET = /* @__PURE__ */ new$();
 function empty_set() {
   return EMPTY_SET;
 }
-var document = globalThis?.document;
+var document2 = globalThis?.document;
 var NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
 var ELEMENT_NODE = 1;
 var TEXT_NODE = 3;
@@ -3511,12 +3511,12 @@ var iterate = (list4, callback) => {
 var appendChild = (node, child) => node.appendChild(child);
 var insertBefore = (parent, node, referenceNode) => parent.insertBefore(node, referenceNode ?? null);
 var createElement = ({ key, tag, namespace: namespace2 }) => {
-  const node = document.createElementNS(namespace2 || NAMESPACE_HTML, tag);
+  const node = document2.createElementNS(namespace2 || NAMESPACE_HTML, tag);
   initialiseMetadata(node, key);
   return node;
 };
-var createTextNode = (text4) => document.createTextNode(text4 ?? "");
-var createDocumentFragment = () => document.createDocumentFragment();
+var createTextNode = (text4) => document2.createTextNode(text4 ?? "");
+var createDocumentFragment = () => document2.createDocumentFragment();
 var childAt = (node, at) => node.childNodes[at | 0];
 var meta = Symbol("lustre");
 var initialiseMetadata = (node, key = "") => {
@@ -3634,7 +3634,7 @@ var virtualise = (root3) => {
   }
 };
 var empty_text_node = () => {
-  return document.createTextNode("");
+  return document2.createTextNode("");
 };
 var virtualise_node = (node) => {
   switch (node.nodeType) {
@@ -3677,7 +3677,7 @@ var virtualise_input_events = (tag, node) => {
     node.checked = checked;
     node.dispatchEvent(new Event("input", { bubbles: true }));
     node.dispatchEvent(new Event("change", { bubbles: true }));
-    if (document.activeElement !== node) {
+    if (document2.activeElement !== node) {
       node.dispatchEvent(new Event("blur", { bubbles: true }));
     }
   });
@@ -3715,7 +3715,7 @@ var virtualise_attribute = (attr) => {
 };
 
 // build/dev/javascript/lustre/lustre/runtime/client/runtime.ffi.mjs
-var is_browser = () => !!document;
+var is_browser = () => !!document2;
 var is_reference_equal = (a2, b) => a2 === b;
 var Runtime = class {
   constructor(root3, [model, effects], view2, update3) {
@@ -4227,7 +4227,7 @@ function new$6(options) {
 var Spa = class _Spa {
   static start({ init: init2, update: update3, view: view2 }, selector, flags) {
     if (!is_browser()) return new Error(new NotABrowser());
-    const root3 = selector instanceof HTMLElement ? selector : document.querySelector(selector);
+    const root3 = selector instanceof HTMLElement ? selector : document2.querySelector(selector);
     if (!root3) return new Error(new ElementNotFound(selector));
     return new Ok(new _Spa(root3, init2(flags), update3, view2));
   }
@@ -4475,10 +4475,22 @@ function sum_forces(particle, all2) {
   );
   return fold(forces(particle, others), toList([0, 0]), add4);
 }
-function new_particle(width, height) {
+function new_particle(r) {
+  if (!r.hasLength(2)) {
+    throw makeError(
+      "let_assert",
+      "physics",
+      48,
+      "new_particle",
+      "Pattern match failed, no pattern matched the value.",
+      { value: r }
+    );
+  }
+  let x2 = r.head;
+  let y2 = r.tail.head;
   return new Particle(
     3 + random(7),
-    toList([random_uniform() * width, random_uniform() * height]),
+    toList([x2, y2]),
     toList([random_uniform() * 10 - 5, random_uniform() * 10 - 5]),
     toList([0, 0])
   );
@@ -4489,7 +4501,7 @@ function update_particle(particle, all2, time, width, height) {
     throw makeError(
       "let_assert",
       "physics",
-      63,
+      64,
       "update_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -4501,7 +4513,7 @@ function update_particle(particle, all2, time, width, height) {
     throw makeError(
       "let_assert",
       "physics",
-      64,
+      65,
       "update_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -4545,7 +4557,7 @@ function to_svg2(particle) {
     throw makeError(
       "let_assert",
       "physics",
-      92,
+      93,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -4557,7 +4569,7 @@ function to_svg2(particle) {
     throw makeError(
       "let_assert",
       "physics",
-      93,
+      94,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -4589,10 +4601,22 @@ function get_window_width() {
 function get_window_height() {
   return window.innerHeight;
 }
+function setup_mouse_listener(dispatch) {
+  const handleMouseMove = (event4) => {
+    const rect = event4.target.getBoundingClientRect();
+    const x2 = event4.clientX - rect.left;
+    const y2 = event4.clientY - rect.top;
+    dispatch(x2, y2);
+  };
+  document.addEventListener("mousemove", handleMouseMove);
+  return () => {
+    document.removeEventListener("mousemove", handleMouseMove);
+  };
+}
 
 // build/dev/javascript/sky/app.mjs
 var Model = class extends CustomType {
-  constructor(debug, light_on, width, height, paused, particles, time, timer_id) {
+  constructor(debug, light_on, width, height, paused, particles, time, timer_id, mouse) {
     super();
     this.debug = debug;
     this.light_on = light_on;
@@ -4602,6 +4626,7 @@ var Model = class extends CustomType {
     this.particles = particles;
     this.time = time;
     this.timer_id = timer_id;
+    this.mouse = mouse;
   }
 };
 var UserTogglePaused = class extends CustomType {
@@ -4630,19 +4655,13 @@ var UpdateParticles = class extends CustomType {
     this[0] = x0;
   }
 };
-function init(_) {
-  let model = new Model(
-    false,
-    true,
-    get_window_width(),
-    get_window_height(),
-    true,
-    toList([]),
-    0,
-    new None()
-  );
-  return [model, none()];
-}
+var MouseMoved = class extends CustomType {
+  constructor(x0, x1) {
+    super();
+    this[0] = x0;
+    this[1] = x1;
+  }
+};
 function start_timer() {
   return from(
     (dispatch) => {
@@ -4671,6 +4690,32 @@ function update_particles_effect(delta) {
     }
   );
 }
+function setup_mouse_tracking() {
+  return from(
+    (dispatch) => {
+      let $ = setup_mouse_listener(
+        (x2, y2) => {
+          return dispatch(new MouseMoved(x2, y2));
+        }
+      );
+      return void 0;
+    }
+  );
+}
+function init(_) {
+  let model = new Model(
+    false,
+    true,
+    get_window_width(),
+    get_window_height(),
+    true,
+    toList([]),
+    0,
+    new None(),
+    toList([100, 100])
+  );
+  return [model, setup_mouse_tracking()];
+}
 function update2(model, msg) {
   let paused = model.paused;
   let particles = model.particles;
@@ -4687,7 +4732,8 @@ function update2(model, msg) {
           _record.paused,
           _record.particles,
           _record.time,
-          _record.timer_id
+          _record.timer_id,
+          _record.mouse
         );
       })(),
       none()
@@ -4704,7 +4750,8 @@ function update2(model, msg) {
           _record.paused,
           _record.particles,
           _record.time,
-          _record.timer_id
+          _record.timer_id,
+          _record.mouse
         );
       })(),
       none()
@@ -4723,7 +4770,8 @@ function update2(model, msg) {
             false,
             _record.particles,
             _record.time,
-            _record.timer_id
+            _record.timer_id,
+            _record.mouse
           );
         })(),
         start_timer()
@@ -4741,7 +4789,8 @@ function update2(model, msg) {
             true,
             _record.particles,
             _record.time,
-            new None()
+            new None(),
+            _record.mouse
           );
         })(),
         stop_timer(timer_id)
@@ -4758,7 +4807,8 @@ function update2(model, msg) {
             true,
             _record.particles,
             _record.time,
-            _record.timer_id
+            _record.timer_id,
+            _record.mouse
           );
         })(),
         none()
@@ -4777,7 +4827,8 @@ function update2(model, msg) {
           _record.paused,
           _record.particles,
           _record.time,
-          new Some(timer_id)
+          new Some(timer_id),
+          _record.mouse
         );
       })(),
       none()
@@ -4794,7 +4845,8 @@ function update2(model, msg) {
           _record.paused,
           _record.particles,
           time + 0.1,
-          _record.timer_id
+          _record.timer_id,
+          _record.mouse
         );
       })(),
       update_particles_effect(0.1)
@@ -4809,12 +4861,10 @@ function update2(model, msg) {
           _record.width,
           _record.height,
           _record.paused,
-          append(
-            particles,
-            toList([new_particle(model.width, model.height)])
-          ),
+          append(particles, toList([new_particle(model.mouse)])),
           _record.time,
-          _record.timer_id
+          _record.timer_id,
+          _record.mouse
         );
       })(),
       none()
@@ -4831,7 +4881,8 @@ function update2(model, msg) {
           _record.paused,
           _record.particles,
           model.time + 1,
-          _record.timer_id
+          _record.timer_id,
+          _record.mouse
         );
       })(),
       update_particles_effect(1)
@@ -4852,13 +4903,14 @@ function update2(model, msg) {
             _record.paused,
             _record.particles,
             time - 1,
-            _record.timer_id
+            _record.timer_id,
+            _record.mouse
           );
         })(),
         update_particles_effect(-1)
       ];
     }
-  } else {
+  } else if (msg instanceof UpdateParticles) {
     let t = msg[0];
     return [
       (() => {
@@ -4885,7 +4937,28 @@ function update2(model, msg) {
             return first(partition(particles$1));
           })(),
           _record.time,
-          _record.timer_id
+          _record.timer_id,
+          _record.mouse
+        );
+      })(),
+      none()
+    ];
+  } else {
+    let x2 = msg[0];
+    let y2 = msg[1];
+    return [
+      (() => {
+        let _record = model;
+        return new Model(
+          _record.debug,
+          _record.light_on,
+          _record.width,
+          _record.height,
+          _record.paused,
+          _record.particles,
+          _record.time,
+          _record.timer_id,
+          toList([x2, y2])
         );
       })(),
       none()
@@ -5142,7 +5215,10 @@ function view_arrow_marker() {
 }
 function view_sim(model) {
   return svg(
-    toList([class$("relative grow z-10 ")]),
+    toList([
+      class$("relative grow z-10 "),
+      on_click(new UserAddedParticle())
+    ]),
     (() => {
       let particles_svg = map(model.particles, to_svg2);
       let _block;
@@ -5251,14 +5327,6 @@ function view(model) {
               )
             ])
           ),
-          div_glass(
-            toList([
-              class$(
-                "w-12 transition duration-300 ease-in-out hover:scale-125"
-              )
-            ]),
-            toList([view_toggle_theme(model.light_on)])
-          ),
           div(
             toList([class$("flex-shrink-0")]),
             toList([view_timer(model.paused, model.time, model.light_on)])
@@ -5272,7 +5340,7 @@ function view(model) {
                     "w-12 transition duration-300 ease-in-out hover:scale-125"
                   )
                 ]),
-                toList([view_button_text(new UserAddedParticle(), "+")])
+                toList([view_toggle_theme(model.light_on)])
               )
             ])
           )
