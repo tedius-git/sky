@@ -1,6 +1,5 @@
 // IMPORTS ---------------------------------------------------------------------
 import gleam/bool
-import gleam/float
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/pair
@@ -65,7 +64,7 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
       particles: [],
       time: 0.0,
       timer_id: None,
-      mouse: [500.0, 500.0],
+      mouse: [0.0, 0.0],
       mouse_down_pos: None,
     )
   #(model, setup_mouse_tracking())
@@ -182,8 +181,14 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     MouseMoved(x, y) -> {
       #(Model(..model, mouse: [x, y]), effect.none())
     }
-    MouseDown(_, _) -> {
-      #(Model(..model, mouse_down_pos: Some(model.mouse)), effect.none())
+    MouseDown(x, y) -> {
+      case x >. 30.0, y >. 30.0 {
+        True, True -> #(
+          Model(..model, mouse_down_pos: Some(model.mouse)),
+          effect.none(),
+        )
+        _, _ -> #(model, effect.none())
+      }
     }
 
     MouseUp(x, y) ->
@@ -191,7 +196,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
         None -> #(model, effect.none())
         Some(start_pos) -> {
           // TODO - When launching a planet if you move the mouse in the bottom the direcction changes
-          // TODO - Every time a button is click a planet is added
           let assert [x_0, y_0] = start_pos
           let dx = x_0 -. x
           let dy = y_0 -. y

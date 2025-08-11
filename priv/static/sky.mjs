@@ -4726,7 +4726,7 @@ function init(_) {
     toList([]),
     0,
     new None(),
-    toList([500, 500]),
+    toList([0, 0]),
     new None()
   );
   return [model, setup_mouse_tracking()];
@@ -4971,24 +4971,32 @@ function update2(model, msg) {
       none()
     ];
   } else if (msg instanceof MouseDown) {
-    return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.debug,
-          _record.light_on,
-          _record.width,
-          _record.height,
-          _record.paused,
-          _record.particles,
-          _record.time,
-          _record.timer_id,
-          _record.mouse,
-          new Some(model.mouse)
-        );
-      })(),
-      none()
-    ];
+    let x2 = msg[0];
+    let y2 = msg[1];
+    let $ = x2 > 30;
+    let $1 = y2 > 30;
+    if ($ && $1) {
+      return [
+        (() => {
+          let _record = model;
+          return new Model(
+            _record.debug,
+            _record.light_on,
+            _record.width,
+            _record.height,
+            _record.paused,
+            _record.particles,
+            _record.time,
+            _record.timer_id,
+            _record.mouse,
+            new Some(model.mouse)
+          );
+        })(),
+        none()
+      ];
+    } else {
+      return [model, none()];
+    }
   } else {
     let x2 = msg[0];
     let y2 = msg[1];
@@ -5001,7 +5009,7 @@ function update2(model, msg) {
         throw makeError(
           "let_assert",
           "app",
-          195,
+          199,
           "update",
           "Pattern match failed, no pattern matched the value.",
           { value: start_pos }
