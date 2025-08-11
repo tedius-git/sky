@@ -33,3 +33,37 @@ export function setup_mouse_listener(dispatch) {
         document.removeEventListener('mousemove', handleMouseMove);
     };
 }
+
+export function setup_mouse_down_listener(dispatch) {
+    const handleMouseDown = (event) => {
+        const rect = event.target.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        dispatch(x, y);
+    };
+
+    document.addEventListener('mousedown', handleMouseDown);
+
+    return () => {
+        document.removeEventListener('mousedown', handleMouseDown);
+    };
+}
+
+export function setup_mouse_up_listener(dispatch) {
+    const handleMouseUp = (event) => {
+        const rect = event.target.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        dispatch(x, y);
+    };
+
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+        document.removeEventListener('mouseup', handleMouseUp);
+    };
+}
+
+export function clear() {
+    console.clear()
+}

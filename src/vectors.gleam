@@ -1,6 +1,7 @@
 // IMPORTS ---------------------------------------------------------------------
 import gleam/float
 import gleam/list
+import gleam/string
 import lustre/attribute.{attribute}
 import lustre/element/svg.{line}
 
@@ -67,6 +68,13 @@ pub fn mod(v: Vector) {
 
 pub fn normalize(v: Vector) {
   scale(1.0 /. mod(v), v)
+}
+
+pub fn to_string(v: Vector) -> String {
+  "["
+  <> list.fold(list.map(v, float.to_string), "", fn(a, b) { a <> "," <> b })
+  |> string.drop_start(up_to: 1)
+  <> "]"
 }
 
 pub fn to_svg(center: Vector, to: Vector, color: String) {

@@ -257,6 +257,11 @@ function bitArrayByteAt(buffer, bitOffset, index3) {
     return a2 | b;
   }
 }
+var UtfCodepoint = class {
+  constructor(value) {
+    this.value = value;
+  }
+};
 var isBitArrayDeprecationMessagePrinted = {};
 function bitArrayPrintDeprecationWarning(name, message) {
   if (isBitArrayDeprecationMessagePrinted[name]) {
@@ -266,6 +271,277 @@ function bitArrayPrintDeprecationWarning(name, message) {
     `Deprecated BitArray.${name} property used in JavaScript FFI code. ${message}.`
   );
   isBitArrayDeprecationMessagePrinted[name] = true;
+}
+function bitArraySlice(bitArray, start4, end) {
+  end ??= bitArray.bitSize;
+  bitArrayValidateRange(bitArray, start4, end);
+  if (start4 === end) {
+    return new BitArray(new Uint8Array());
+  }
+  if (start4 === 0 && end === bitArray.bitSize) {
+    return bitArray;
+  }
+  start4 += bitArray.bitOffset;
+  end += bitArray.bitOffset;
+  const startByteIndex = Math.trunc(start4 / 8);
+  const endByteIndex = Math.trunc((end + 7) / 8);
+  const byteLength = endByteIndex - startByteIndex;
+  let buffer;
+  if (startByteIndex === 0 && byteLength === bitArray.rawBuffer.byteLength) {
+    buffer = bitArray.rawBuffer;
+  } else {
+    buffer = new Uint8Array(
+      bitArray.rawBuffer.buffer,
+      bitArray.rawBuffer.byteOffset + startByteIndex,
+      byteLength
+    );
+  }
+  return new BitArray(buffer, end - start4, start4 % 8);
+}
+function bitArraySliceToInt(bitArray, start4, end, isBigEndian, isSigned) {
+  bitArrayValidateRange(bitArray, start4, end);
+  if (start4 === end) {
+    return 0;
+  }
+  start4 += bitArray.bitOffset;
+  end += bitArray.bitOffset;
+  const isStartByteAligned = start4 % 8 === 0;
+  const isEndByteAligned = end % 8 === 0;
+  if (isStartByteAligned && isEndByteAligned) {
+    return intFromAlignedSlice(
+      bitArray,
+      start4 / 8,
+      end / 8,
+      isBigEndian,
+      isSigned
+    );
+  }
+  const size2 = end - start4;
+  const startByteIndex = Math.trunc(start4 / 8);
+  const endByteIndex = Math.trunc((end - 1) / 8);
+  if (startByteIndex == endByteIndex) {
+    const mask2 = 255 >> start4 % 8;
+    const unusedLowBitCount = (8 - end % 8) % 8;
+    let value = (bitArray.rawBuffer[startByteIndex] & mask2) >> unusedLowBitCount;
+    if (isSigned) {
+      const highBit = 2 ** (size2 - 1);
+      if (value >= highBit) {
+        value -= highBit * 2;
+      }
+    }
+    return value;
+  }
+  if (size2 <= 53) {
+    return intFromUnalignedSliceUsingNumber(
+      bitArray.rawBuffer,
+      start4,
+      end,
+      isBigEndian,
+      isSigned
+    );
+  } else {
+    return intFromUnalignedSliceUsingBigInt(
+      bitArray.rawBuffer,
+      start4,
+      end,
+      isBigEndian,
+      isSigned
+    );
+  }
+}
+function intFromAlignedSlice(bitArray, start4, end, isBigEndian, isSigned) {
+  const byteSize = end - start4;
+  if (byteSize <= 6) {
+    return intFromAlignedSliceUsingNumber(
+      bitArray.rawBuffer,
+      start4,
+      end,
+      isBigEndian,
+      isSigned
+    );
+  } else {
+    return intFromAlignedSliceUsingBigInt(
+      bitArray.rawBuffer,
+      start4,
+      end,
+      isBigEndian,
+      isSigned
+    );
+  }
+}
+function intFromAlignedSliceUsingNumber(buffer, start4, end, isBigEndian, isSigned) {
+  const byteSize = end - start4;
+  let value = 0;
+  if (isBigEndian) {
+    for (let i = start4; i < end; i++) {
+      value *= 256;
+      value += buffer[i];
+    }
+  } else {
+    for (let i = end - 1; i >= start4; i--) {
+      value *= 256;
+      value += buffer[i];
+    }
+  }
+  if (isSigned) {
+    const highBit = 2 ** (byteSize * 8 - 1);
+    if (value >= highBit) {
+      value -= highBit * 2;
+    }
+  }
+  return value;
+}
+function intFromAlignedSliceUsingBigInt(buffer, start4, end, isBigEndian, isSigned) {
+  const byteSize = end - start4;
+  let value = 0n;
+  if (isBigEndian) {
+    for (let i = start4; i < end; i++) {
+      value *= 256n;
+      value += BigInt(buffer[i]);
+    }
+  } else {
+    for (let i = end - 1; i >= start4; i--) {
+      value *= 256n;
+      value += BigInt(buffer[i]);
+    }
+  }
+  if (isSigned) {
+    const highBit = 1n << BigInt(byteSize * 8 - 1);
+    if (value >= highBit) {
+      value -= highBit * 2n;
+    }
+  }
+  return Number(value);
+}
+function intFromUnalignedSliceUsingNumber(buffer, start4, end, isBigEndian, isSigned) {
+  const isStartByteAligned = start4 % 8 === 0;
+  let size2 = end - start4;
+  let byteIndex = Math.trunc(start4 / 8);
+  let value = 0;
+  if (isBigEndian) {
+    if (!isStartByteAligned) {
+      const leadingBitsCount = 8 - start4 % 8;
+      value = buffer[byteIndex++] & (1 << leadingBitsCount) - 1;
+      size2 -= leadingBitsCount;
+    }
+    while (size2 >= 8) {
+      value *= 256;
+      value += buffer[byteIndex++];
+      size2 -= 8;
+    }
+    if (size2 > 0) {
+      value *= 2 ** size2;
+      value += buffer[byteIndex] >> 8 - size2;
+    }
+  } else {
+    if (isStartByteAligned) {
+      let size3 = end - start4;
+      let scale2 = 1;
+      while (size3 >= 8) {
+        value += buffer[byteIndex++] * scale2;
+        scale2 *= 256;
+        size3 -= 8;
+      }
+      value += (buffer[byteIndex] >> 8 - size3) * scale2;
+    } else {
+      const highBitsCount = start4 % 8;
+      const lowBitsCount = 8 - highBitsCount;
+      let size3 = end - start4;
+      let scale2 = 1;
+      while (size3 >= 8) {
+        const byte = buffer[byteIndex] << highBitsCount | buffer[byteIndex + 1] >> lowBitsCount;
+        value += (byte & 255) * scale2;
+        scale2 *= 256;
+        size3 -= 8;
+        byteIndex++;
+      }
+      if (size3 > 0) {
+        const lowBitsUsed = size3 - Math.max(0, size3 - lowBitsCount);
+        let trailingByte = (buffer[byteIndex] & (1 << lowBitsCount) - 1) >> lowBitsCount - lowBitsUsed;
+        size3 -= lowBitsUsed;
+        if (size3 > 0) {
+          trailingByte *= 2 ** size3;
+          trailingByte += buffer[byteIndex + 1] >> 8 - size3;
+        }
+        value += trailingByte * scale2;
+      }
+    }
+  }
+  if (isSigned) {
+    const highBit = 2 ** (end - start4 - 1);
+    if (value >= highBit) {
+      value -= highBit * 2;
+    }
+  }
+  return value;
+}
+function intFromUnalignedSliceUsingBigInt(buffer, start4, end, isBigEndian, isSigned) {
+  const isStartByteAligned = start4 % 8 === 0;
+  let size2 = end - start4;
+  let byteIndex = Math.trunc(start4 / 8);
+  let value = 0n;
+  if (isBigEndian) {
+    if (!isStartByteAligned) {
+      const leadingBitsCount = 8 - start4 % 8;
+      value = BigInt(buffer[byteIndex++] & (1 << leadingBitsCount) - 1);
+      size2 -= leadingBitsCount;
+    }
+    while (size2 >= 8) {
+      value *= 256n;
+      value += BigInt(buffer[byteIndex++]);
+      size2 -= 8;
+    }
+    if (size2 > 0) {
+      value <<= BigInt(size2);
+      value += BigInt(buffer[byteIndex] >> 8 - size2);
+    }
+  } else {
+    if (isStartByteAligned) {
+      let size3 = end - start4;
+      let shift = 0n;
+      while (size3 >= 8) {
+        value += BigInt(buffer[byteIndex++]) << shift;
+        shift += 8n;
+        size3 -= 8;
+      }
+      value += BigInt(buffer[byteIndex] >> 8 - size3) << shift;
+    } else {
+      const highBitsCount = start4 % 8;
+      const lowBitsCount = 8 - highBitsCount;
+      let size3 = end - start4;
+      let shift = 0n;
+      while (size3 >= 8) {
+        const byte = buffer[byteIndex] << highBitsCount | buffer[byteIndex + 1] >> lowBitsCount;
+        value += BigInt(byte & 255) << shift;
+        shift += 8n;
+        size3 -= 8;
+        byteIndex++;
+      }
+      if (size3 > 0) {
+        const lowBitsUsed = size3 - Math.max(0, size3 - lowBitsCount);
+        let trailingByte = (buffer[byteIndex] & (1 << lowBitsCount) - 1) >> lowBitsCount - lowBitsUsed;
+        size3 -= lowBitsUsed;
+        if (size3 > 0) {
+          trailingByte <<= size3;
+          trailingByte += buffer[byteIndex + 1] >> 8 - size3;
+        }
+        value += BigInt(trailingByte) << shift;
+      }
+    }
+  }
+  if (isSigned) {
+    const highBit = 2n ** BigInt(end - start4 - 1);
+    if (value >= highBit) {
+      value -= highBit * 2n;
+    }
+  }
+  return Number(value);
+}
+function bitArrayValidateRange(bitArray, start4, end) {
+  if (start4 < 0 || start4 > bitArray.bitSize || end < start4 || end > bitArray.bitSize) {
+    const msg = `Invalid bit array slice: start = ${start4}, end = ${end}, bit size = ${bitArray.bitSize}`;
+    throw new globalThis.Error(msg);
+  }
 }
 var Result = class _Result extends CustomType {
   // @internal
@@ -1115,6 +1391,27 @@ function float_to_string(float2) {
     }
   }
 }
+var segmenter = void 0;
+function graphemes_iterator(string5) {
+  if (globalThis.Intl && Intl.Segmenter) {
+    segmenter ||= new Intl.Segmenter();
+    return segmenter.segment(string5)[Symbol.iterator]();
+  }
+}
+function pop_grapheme(string5) {
+  let first3;
+  const iterator = graphemes_iterator(string5);
+  if (iterator) {
+    first3 = iterator.next().value?.segment;
+  } else {
+    first3 = string5.match(/./su)?.[0];
+  }
+  if (first3) {
+    return new Ok([first3, string5.slice(first3.length)]);
+  } else {
+    return new Error(Nil);
+  }
+}
 function starts_with(haystack, needle) {
   return haystack.startsWith(needle);
 }
@@ -1142,19 +1439,6 @@ var trim_start_regex = /* @__PURE__ */ new RegExp(
   `^[${unicode_whitespaces}]*`
 );
 var trim_end_regex = /* @__PURE__ */ new RegExp(`[${unicode_whitespaces}]*$`);
-function floor(float2) {
-  return Math.floor(float2);
-}
-function round(float2) {
-  return Math.round(float2);
-}
-function random_uniform() {
-  const random_uniform_result = Math.random();
-  if (random_uniform_result === 1) {
-    return random_uniform();
-  }
-  return random_uniform_result;
-}
 function new_map() {
   return Dict.new();
 }
@@ -1185,26 +1469,11 @@ function loosely_equals(a2, b, tolerance) {
 function negate(x2) {
   return -1 * x2;
 }
-function round2(x2) {
-  let $ = x2 >= 0;
-  if ($) {
-    return round(x2);
-  } else {
-    return 0 - round(negate(x2));
-  }
-}
 function add(a2, b) {
   return a2 + b;
 }
 function multiply(a2, b) {
   return a2 * b;
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/int.mjs
-function random(max) {
-  let _pipe = random_uniform() * identity(max);
-  let _pipe$1 = floor(_pipe);
-  return round2(_pipe$1);
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/dict.mjs
@@ -1720,6 +1989,25 @@ function concat_loop(loop$strings, loop$accumulator) {
 }
 function concat2(strings) {
   return concat_loop(strings, "");
+}
+function drop_start(loop$string, loop$num_graphemes) {
+  while (true) {
+    let string5 = loop$string;
+    let num_graphemes = loop$num_graphemes;
+    let $ = num_graphemes > 0;
+    if (!$) {
+      return string5;
+    } else {
+      let $1 = pop_grapheme(string5);
+      if ($1.isOk()) {
+        let string$1 = $1[0][1];
+        loop$string = string$1;
+        loop$num_graphemes = num_graphemes - 1;
+      } else {
+        return string5;
+      }
+    }
+  }
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/result.mjs
@@ -4373,13 +4661,25 @@ function mod(v) {
 function normalize(v) {
   return scale(divideFloat(1, mod(v)), v);
 }
+function to_string4(v) {
+  return "[" + (() => {
+    let _pipe = fold(
+      map(v, float_to_string),
+      "",
+      (a2, b) => {
+        return a2 + "," + b;
+      }
+    );
+    return drop_start(_pipe, 1);
+  })() + "]";
+}
 function to_svg(center, to, color) {
   let $ = x(center);
   if (!$.isOk()) {
     throw makeError(
       "let_assert",
       "vectors",
-      73,
+      81,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -4391,7 +4691,7 @@ function to_svg(center, to, color) {
     throw makeError(
       "let_assert",
       "vectors",
-      74,
+      82,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -4403,7 +4703,7 @@ function to_svg(center, to, color) {
     throw makeError(
       "let_assert",
       "vectors",
-      75,
+      83,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $2 }
@@ -4415,7 +4715,7 @@ function to_svg(center, to, color) {
     throw makeError(
       "let_assert",
       "vectors",
-      76,
+      84,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $3 }
@@ -4475,7 +4775,7 @@ function sum_forces(particle, all2) {
   );
   return fold(forces(particle, others), toList([0, 0]), add4);
 }
-function new_particle(r) {
+function new_particle(r, v, m) {
   if (!r.hasLength(2)) {
     throw makeError(
       "let_assert",
@@ -4488,12 +4788,7 @@ function new_particle(r) {
   }
   let x2 = r.head;
   let y2 = r.tail.head;
-  return new Particle(
-    3 + random(7),
-    toList([x2, y2]),
-    toList([random_uniform() * 10 - 5, random_uniform() * 10 - 5]),
-    toList([0, 0])
-  );
+  return new Particle(m, toList([x2, y2]), v, toList([0, 0]));
 }
 function update_particle(particle, all2, time, width, height) {
   let $ = x(particle.r);
@@ -4501,7 +4796,7 @@ function update_particle(particle, all2, time, width, height) {
     throw makeError(
       "let_assert",
       "physics",
-      64,
+      59,
       "update_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -4513,7 +4808,7 @@ function update_particle(particle, all2, time, width, height) {
     throw makeError(
       "let_assert",
       "physics",
-      65,
+      60,
       "update_particle",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -4557,7 +4852,7 @@ function to_svg2(particle) {
     throw makeError(
       "let_assert",
       "physics",
-      93,
+      88,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }
@@ -4569,7 +4864,7 @@ function to_svg2(particle) {
     throw makeError(
       "let_assert",
       "physics",
-      94,
+      89,
       "to_svg",
       "Pattern match failed, no pattern matched the value.",
       { value: $1 }
@@ -4613,10 +4908,34 @@ function setup_mouse_listener(dispatch) {
     document.removeEventListener("mousemove", handleMouseMove);
   };
 }
+function setup_mouse_down_listener(dispatch) {
+  const handleMouseDown = (event4) => {
+    const rect = event4.target.getBoundingClientRect();
+    const x2 = event4.clientX - rect.left;
+    const y2 = event4.clientY - rect.top;
+    dispatch(x2, y2);
+  };
+  document.addEventListener("mousedown", handleMouseDown);
+  return () => {
+    document.removeEventListener("mousedown", handleMouseDown);
+  };
+}
+function setup_mouse_up_listener(dispatch) {
+  const handleMouseUp = (event4) => {
+    const rect = event4.target.getBoundingClientRect();
+    const x2 = event4.clientX - rect.left;
+    const y2 = event4.clientY - rect.top;
+    dispatch(x2, y2);
+  };
+  document.addEventListener("mouseup", handleMouseUp);
+  return () => {
+    document.removeEventListener("mouseup", handleMouseUp);
+  };
+}
 
 // build/dev/javascript/sky/app.mjs
 var Model = class extends CustomType {
-  constructor(debug, light_on, width, height, paused, particles, time, timer_id, mouse) {
+  constructor(debug, light_on, width, height, paused, particles, time, timer_id, mouse, mouse_down_pos) {
     super();
     this.debug = debug;
     this.light_on = light_on;
@@ -4627,6 +4946,7 @@ var Model = class extends CustomType {
     this.time = time;
     this.timer_id = timer_id;
     this.mouse = mouse;
+    this.mouse_down_pos = mouse_down_pos;
   }
 };
 var UserTogglePaused = class extends CustomType {
@@ -4643,8 +4963,6 @@ var TimerStarted = class extends CustomType {
     this[0] = x0;
   }
 };
-var UserAddedParticle = class extends CustomType {
-};
 var UserIncreseTime = class extends CustomType {
 };
 var UserDecreseTime = class extends CustomType {
@@ -4656,6 +4974,20 @@ var UpdateParticles = class extends CustomType {
   }
 };
 var MouseMoved = class extends CustomType {
+  constructor(x0, x1) {
+    super();
+    this[0] = x0;
+    this[1] = x1;
+  }
+};
+var MouseDown = class extends CustomType {
+  constructor(x0, x1) {
+    super();
+    this[0] = x0;
+    this[1] = x1;
+  }
+};
+var MouseUp = class extends CustomType {
   constructor(x0, x1) {
     super();
     this[0] = x0;
@@ -4698,6 +5030,16 @@ function setup_mouse_tracking() {
           return dispatch(new MouseMoved(x2, y2));
         }
       );
+      let $1 = setup_mouse_down_listener(
+        (x2, y2) => {
+          return dispatch(new MouseDown(x2, y2));
+        }
+      );
+      let $2 = setup_mouse_up_listener(
+        (x2, y2) => {
+          return dispatch(new MouseUp(x2, y2));
+        }
+      );
       return void 0;
     }
   );
@@ -4712,13 +5054,13 @@ function init(_) {
     toList([]),
     0,
     new None(),
-    toList([100, 100])
+    toList([100, 100]),
+    new None()
   );
   return [model, setup_mouse_tracking()];
 }
 function update2(model, msg) {
   let paused = model.paused;
-  let particles = model.particles;
   let time = model.time;
   if (msg instanceof UserToggleTheme) {
     return [
@@ -4733,7 +5075,8 @@ function update2(model, msg) {
           _record.particles,
           _record.time,
           _record.timer_id,
-          _record.mouse
+          _record.mouse,
+          _record.mouse_down_pos
         );
       })(),
       none()
@@ -4751,7 +5094,8 @@ function update2(model, msg) {
           _record.particles,
           _record.time,
           _record.timer_id,
-          _record.mouse
+          _record.mouse,
+          _record.mouse_down_pos
         );
       })(),
       none()
@@ -4771,7 +5115,8 @@ function update2(model, msg) {
             _record.particles,
             _record.time,
             _record.timer_id,
-            _record.mouse
+            _record.mouse,
+            _record.mouse_down_pos
           );
         })(),
         start_timer()
@@ -4790,7 +5135,8 @@ function update2(model, msg) {
             _record.particles,
             _record.time,
             new None(),
-            _record.mouse
+            _record.mouse,
+            _record.mouse_down_pos
           );
         })(),
         stop_timer(timer_id)
@@ -4808,7 +5154,8 @@ function update2(model, msg) {
             _record.particles,
             _record.time,
             _record.timer_id,
-            _record.mouse
+            _record.mouse,
+            _record.mouse_down_pos
           );
         })(),
         none()
@@ -4828,7 +5175,8 @@ function update2(model, msg) {
           _record.particles,
           _record.time,
           new Some(timer_id),
-          _record.mouse
+          _record.mouse,
+          _record.mouse_down_pos
         );
       })(),
       none()
@@ -4846,28 +5194,11 @@ function update2(model, msg) {
           _record.particles,
           time + 0.1,
           _record.timer_id,
-          _record.mouse
+          _record.mouse,
+          _record.mouse_down_pos
         );
       })(),
       update_particles_effect(0.1)
-    ];
-  } else if (msg instanceof UserAddedParticle) {
-    return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.debug,
-          _record.light_on,
-          _record.width,
-          _record.height,
-          _record.paused,
-          append(particles, toList([new_particle(model.mouse)])),
-          _record.time,
-          _record.timer_id,
-          _record.mouse
-        );
-      })(),
-      none()
     ];
   } else if (msg instanceof UserIncreseTime) {
     return [
@@ -4882,7 +5213,8 @@ function update2(model, msg) {
           _record.particles,
           model.time + 1,
           _record.timer_id,
-          _record.mouse
+          _record.mouse,
+          _record.mouse_down_pos
         );
       })(),
       update_particles_effect(1)
@@ -4904,7 +5236,8 @@ function update2(model, msg) {
             _record.particles,
             time - 1,
             _record.timer_id,
-            _record.mouse
+            _record.mouse,
+            _record.mouse_down_pos
           );
         })(),
         update_particles_effect(-1)
@@ -4922,7 +5255,7 @@ function update2(model, msg) {
           _record.height,
           _record.paused,
           (() => {
-            let particles$1 = map(
+            let particles = map(
               model.particles,
               (_capture) => {
                 return update_particle(
@@ -4934,16 +5267,17 @@ function update2(model, msg) {
                 );
               }
             );
-            return first(partition(particles$1));
+            return first(partition(particles));
           })(),
           _record.time,
           _record.timer_id,
-          _record.mouse
+          _record.mouse,
+          _record.mouse_down_pos
         );
       })(),
       none()
     ];
-  } else {
+  } else if (msg instanceof MouseMoved) {
     let x2 = msg[0];
     let y2 = msg[1];
     return [
@@ -4958,11 +5292,217 @@ function update2(model, msg) {
           _record.particles,
           _record.time,
           _record.timer_id,
-          toList([x2, y2])
+          toList([x2, y2]),
+          _record.mouse_down_pos
         );
       })(),
       none()
     ];
+  } else if (msg instanceof MouseDown) {
+    return [
+      (() => {
+        let _record = model;
+        return new Model(
+          _record.debug,
+          _record.light_on,
+          _record.width,
+          _record.height,
+          _record.paused,
+          _record.particles,
+          _record.time,
+          _record.timer_id,
+          _record.mouse,
+          new Some(model.mouse)
+        );
+      })(),
+      none()
+    ];
+  } else {
+    let x2 = msg[0];
+    let y2 = msg[1];
+    let $ = model.mouse_down_pos;
+    if ($ instanceof None) {
+      return [model, none()];
+    } else {
+      let start_pos = $[0];
+      if (!start_pos.hasLength(2)) {
+        throw makeError(
+          "let_assert",
+          "app",
+          197,
+          "update",
+          "Pattern match failed, no pattern matched the value.",
+          { value: start_pos }
+        );
+      }
+      let x_0 = start_pos.head;
+      let y_0 = start_pos.tail.head;
+      let dx = x2 - x_0;
+      let dy = y2 - y_0;
+      let velocity = toList([divideFloat(dx, 10), divideFloat(dy, 10)]);
+      echo(
+        "p_0 " + to_string4(toList([x_0, y_0])),
+        "src/app.gleam",
+        201
+      );
+      echo("p " + to_string4(toList([x2, y2])), "src/app.gleam", 202);
+      echo("v " + to_string4(velocity), "src/app.gleam", 203);
+      let new_p = new_particle(start_pos, velocity, 5);
+      return [
+        (() => {
+          let _record = model;
+          return new Model(
+            _record.debug,
+            _record.light_on,
+            _record.width,
+            _record.height,
+            _record.paused,
+            append(model.particles, toList([new_p])),
+            _record.time,
+            _record.timer_id,
+            _record.mouse,
+            new None()
+          );
+        })(),
+        none()
+      ];
+    }
+  }
+}
+function echo(value, file, line2) {
+  const grey = "\x1B[90m";
+  const reset_color = "\x1B[39m";
+  const file_line = `${file}:${line2}`;
+  const string_value = echo$inspect(value);
+  if (globalThis.process?.stderr?.write) {
+    const string5 = `${grey}${file_line}${reset_color}
+${string_value}
+`;
+    process.stderr.write(string5);
+  } else if (globalThis.Deno) {
+    const string5 = `${grey}${file_line}${reset_color}
+${string_value}
+`;
+    globalThis.Deno.stderr.writeSync(new TextEncoder().encode(string5));
+  } else {
+    const string5 = `${file_line}
+${string_value}`;
+    globalThis.console.log(string5);
+  }
+  return value;
+}
+function echo$inspectString(str) {
+  let new_str = '"';
+  for (let i = 0; i < str.length; i++) {
+    let char = str[i];
+    if (char == "\n") new_str += "\\n";
+    else if (char == "\r") new_str += "\\r";
+    else if (char == "	") new_str += "\\t";
+    else if (char == "\f") new_str += "\\f";
+    else if (char == "\\") new_str += "\\\\";
+    else if (char == '"') new_str += '\\"';
+    else if (char < " " || char > "~" && char < "\xA0") {
+      new_str += "\\u{" + char.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0") + "}";
+    } else {
+      new_str += char;
+    }
+  }
+  new_str += '"';
+  return new_str;
+}
+function echo$inspectDict(map5) {
+  let body = "dict.from_list([";
+  let first3 = true;
+  let key_value_pairs = [];
+  map5.forEach((value, key) => {
+    key_value_pairs.push([key, value]);
+  });
+  key_value_pairs.sort();
+  key_value_pairs.forEach(([key, value]) => {
+    if (!first3) body = body + ", ";
+    body = body + "#(" + echo$inspect(key) + ", " + echo$inspect(value) + ")";
+    first3 = false;
+  });
+  return body + "])";
+}
+function echo$inspectCustomType(record) {
+  const props = globalThis.Object.keys(record).map((label) => {
+    const value = echo$inspect(record[label]);
+    return isNaN(parseInt(label)) ? `${label}: ${value}` : value;
+  }).join(", ");
+  return props ? `${record.constructor.name}(${props})` : record.constructor.name;
+}
+function echo$inspectObject(v) {
+  const name = Object.getPrototypeOf(v)?.constructor?.name || "Object";
+  const props = [];
+  for (const k of Object.keys(v)) {
+    props.push(`${echo$inspect(k)}: ${echo$inspect(v[k])}`);
+  }
+  const body = props.length ? " " + props.join(", ") + " " : "";
+  const head = name === "Object" ? "" : name + " ";
+  return `//js(${head}{${body}})`;
+}
+function echo$inspect(v) {
+  const t = typeof v;
+  if (v === true) return "True";
+  if (v === false) return "False";
+  if (v === null) return "//js(null)";
+  if (v === void 0) return "Nil";
+  if (t === "string") return echo$inspectString(v);
+  if (t === "bigint" || t === "number") return v.toString();
+  if (globalThis.Array.isArray(v))
+    return `#(${v.map(echo$inspect).join(", ")})`;
+  if (v instanceof List)
+    return `[${v.toArray().map(echo$inspect).join(", ")}]`;
+  if (v instanceof UtfCodepoint)
+    return `//utfcodepoint(${String.fromCodePoint(v.value)})`;
+  if (v instanceof BitArray) return echo$inspectBitArray(v);
+  if (v instanceof CustomType) return echo$inspectCustomType(v);
+  if (echo$isDict(v)) return echo$inspectDict(v);
+  if (v instanceof Set)
+    return `//js(Set(${[...v].map(echo$inspect).join(", ")}))`;
+  if (v instanceof RegExp) return `//js(${v})`;
+  if (v instanceof Date) return `//js(Date("${v.toISOString()}"))`;
+  if (v instanceof Function) {
+    const args = [];
+    for (const i of Array(v.length).keys())
+      args.push(String.fromCharCode(i + 97));
+    return `//fn(${args.join(", ")}) { ... }`;
+  }
+  return echo$inspectObject(v);
+}
+function echo$inspectBitArray(bitArray) {
+  let endOfAlignedBytes = bitArray.bitOffset + 8 * Math.trunc(bitArray.bitSize / 8);
+  let alignedBytes = bitArraySlice(
+    bitArray,
+    bitArray.bitOffset,
+    endOfAlignedBytes
+  );
+  let remainingUnalignedBits = bitArray.bitSize % 8;
+  if (remainingUnalignedBits > 0) {
+    let remainingBits = bitArraySliceToInt(
+      bitArray,
+      endOfAlignedBytes,
+      bitArray.bitSize,
+      false,
+      false
+    );
+    let alignedBytesArray = Array.from(alignedBytes.rawBuffer);
+    let suffix = `${remainingBits}:size(${remainingUnalignedBits})`;
+    if (alignedBytesArray.length === 0) {
+      return `<<${suffix}>>`;
+    } else {
+      return `<<${Array.from(alignedBytes.rawBuffer).join(", ")}, ${suffix}>>`;
+    }
+  } else {
+    return `<<${Array.from(alignedBytes.rawBuffer).join(", ")}>>`;
+  }
+}
+function echo$isDict(value) {
+  try {
+    return value instanceof Dict;
+  } catch {
+    return false;
   }
 }
 
@@ -5215,15 +5755,54 @@ function view_arrow_marker() {
 }
 function view_sim(model) {
   return svg(
-    toList([
-      class$("relative grow z-10 "),
-      on_click(new UserAddedParticle())
-    ]),
+    toList([class$("relative grow z-10 ")]),
     (() => {
       let particles_svg = map(model.particles, to_svg2);
       let _block;
-      let $ = model.debug;
-      if ($) {
+      let $ = model.mouse_down_pos;
+      if ($ instanceof None) {
+        _block = toList([]);
+      } else {
+        let start_pos = $[0];
+        if (!start_pos.hasLength(2)) {
+          throw makeError(
+            "let_assert",
+            "view",
+            181,
+            "view_sim",
+            "Pattern match failed, no pattern matched the value.",
+            { value: start_pos }
+          );
+        }
+        let x_0 = start_pos.head;
+        let y_0 = start_pos.tail.head;
+        let $12 = model.mouse;
+        if (!$12.hasLength(2)) {
+          throw makeError(
+            "let_assert",
+            "view",
+            182,
+            "view_sim",
+            "Pattern match failed, no pattern matched the value.",
+            { value: $12 }
+          );
+        }
+        let x2 = $12.head;
+        let y2 = $12.tail.head;
+        let dx = x2 - x_0;
+        let dy = y2 - y_0;
+        _block = toList([
+          to_svg(
+            toList([x2, y2]),
+            toList([divideFloat(dx, 10), divideFloat(dy, 10)]),
+            "gray"
+          )
+        ]);
+      }
+      let launch_v = _block;
+      let _block$1;
+      let $1 = model.debug;
+      if ($1) {
         let forces2 = map(
           model.particles,
           (p) => {
@@ -5234,7 +5813,7 @@ function view_sim(model) {
             ];
           }
         );
-        _block = map(
+        _block$1 = map(
           forces2,
           (v) => {
             let from2 = v[0];
@@ -5244,12 +5823,13 @@ function view_sim(model) {
           }
         );
       } else {
-        _block = toList([]);
+        _block$1 = toList([]);
       }
-      let _pipe = _block;
+      let _pipe = _block$1;
       let _pipe$1 = append(_pipe, particles_svg);
+      let _pipe$2 = append(_pipe$1, launch_v);
       return append(
-        _pipe$1,
+        _pipe$2,
         toList([
           defs(
             toList([]),

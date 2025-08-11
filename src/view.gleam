@@ -1,10 +1,11 @@
 // IMPORTS ---------------------------------------------------------------------
 import app.{
-  type Model, type Msg, UserAddedParticle, UserDecreseTime, UserIncreseTime,
-  UserToggleDebug, UserTogglePaused, UserToggleTheme,
+  type Model, type Msg, UserDecreseTime, UserIncreseTime, UserToggleDebug,
+  UserTogglePaused, UserToggleTheme,
 }
 import gleam/bool
 import gleam/list
+import gleam/option.{None, Some}
 import lustre/attribute as a
 import lustre/element.{type Element}
 import lustre/element/html as h
@@ -172,8 +173,19 @@ fn view_timer(paused: Bool, _time: Float, light_on: Bool) -> Element(Msg) {
 }
 
 fn view_sim(model: Model) -> Element(Msg) {
-  h.svg([a.class("relative grow z-10 "), event.on_click(UserAddedParticle)], {
+  h.svg([a.class("relative grow z-10 ")], {
     let particles_svg = list.map(model.particles, physics.to_svg)
+    let launch_v = case model.mouse_down_pos {
+      None -> []
+      Some(start_pos) -> {
+        let assert [x_0, y_0] = start_pos
+        let assert [x, y] = model.mouse
+        let dx = x -. x_0
+        let dy = y -. y_0
+        [vectors.to_svg([x, y], [dx /. 10.0, dy /. 10.0], "gray")]
+      }
+    }
+
     {
       case model.debug {
         True -> {
@@ -194,6 +206,7 @@ fn view_sim(model: Model) -> Element(Msg) {
       }
     }
     |> list.append(particles_svg)
+    |> list.append(launch_v)
     |> list.append([
       svg.defs([], list.append(view_colors(), view_arrow_marker())),
     ])

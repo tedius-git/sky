@@ -1,5 +1,6 @@
 // IMPORTS ---------------------------------------------------------------------
 import gleam/bool
+import gleam/float
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/pair
@@ -21,6 +22,7 @@ pub type Model {
     time: Float,
     timer_id: Option(Int),
     mouse: vectors.Vector,
+    mouse_down_pos: Option(vectors.Vector),
   )
 }
 
@@ -30,11 +32,12 @@ pub type Msg {
   UserToggleTheme
   IncreseTime
   TimerStarted(Int)
-  UserAddedParticle
   UserIncreseTime
   UserDecreseTime
   UpdateParticles(Float)
   MouseMoved(Float, Float)
+  MouseDown(Float, Float)
+  MouseUp(Float, Float)
 }
 
 // Model -----------------------------------------------------------------------
@@ -63,6 +66,7 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
       time: 0.0,
       timer_id: None,
       mouse: [100.0, 100.0],
+      mouse_down_pos: None,
     )
   #(model, setup_mouse_tracking())
 }
@@ -99,18 +103,30 @@ fn update_particles_effect(delta: Float) -> Effect(Msg) {
 @external(javascript, "./sky.ffi.mjs", "setup_mouse_listener")
 fn setup_mouse_listener(dispatch: fn(Float, Float) -> Nil) -> fn() -> Nil
 
+@external(javascript, "./sky.ffi.mjs", "setup_mouse_down_listener")
+fn setup_mouse_down_listener(dispatch: fn(Float, Float) -> Nil) -> fn() -> Nil
+
+@external(javascript, "./sky.ffi.mjs", "setup_mouse_up_listener")
+fn setup_mouse_up_listener(dispatch: fn(Float, Float) -> Nil) -> fn() -> Nil
+
 fn setup_mouse_tracking() -> Effect(Msg) {
   use dispatch <- effect.from
   let _cleanup_fn =
     setup_mouse_listener(fn(x, y) { dispatch(MouseMoved(x, y)) })
+  let _cleanup_down =
+    setup_mouse_down_listener(fn(x, y) { dispatch(MouseDown(x, y)) })
+  let _cleanup_up =
+    setup_mouse_up_listener(fn(x, y) { dispatch(MouseUp(x, y)) })
   Nil
 }
+
+@external(javascript, "./sky.ffi.mjs", "clear")
+fn clear() -> Nil
 
 // UPDATE ----------------------------------------------------------------------
 
 pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   let paused = model.paused
-  let particles = model.particles
   let time = model.time
 
   case msg {
@@ -140,13 +156,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       Model(..model, time: time +. 0.1),
       update_particles_effect(0.1),
     )
-    UserAddedParticle -> #(
-      Model(
-        ..model,
-        particles: list.append(particles, [new_particle(model.mouse)]),
-      ),
-      effect.none(),
-    )
     UserIncreseTime -> #(
       Model(..model, time: model.time +. 1.0),
       update_particles_effect(1.0),
@@ -173,6 +182,35 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       }),
       effect.none(),
     )
-    MouseMoved(x, y) -> #(Model(..model, mouse: [x, y]), effect.none())
+    MouseMoved(x, y) -> {
+      // echo "mouse:(" <> float.to_string(x) <> "," <> float.to_string(y) <> ")"
+      #(Model(..model, mouse: [x, y]), effect.none())
+    }
+    MouseDown(_, _) -> {
+      #(Model(..model, mouse_down_pos: Some(model.mouse)), effect.none())
+    }
+
+    MouseUp(x, y) ->
+      case model.mouse_down_pos {
+        None -> #(model, effect.none())
+        Some(start_pos) -> {
+          let assert [x_0, y_0] = start_pos
+          let dx = x -. x_0
+          let dy = y -. y_0
+          let velocity = [dx /. 10.0, dy /. 10.0]
+          echo "p_0 " <> vectors.to_string([x_0, y_0])
+          echo "p " <> vectors.to_string([x, y])
+          echo "v " <> vectors.to_string(velocity)
+          let new_p = new_particle(start_pos, velocity, 5)
+          #(
+            Model(
+              ..model,
+              particles: list.append(model.particles, [new_p]),
+              mouse_down_pos: None,
+            ),
+            effect.none(),
+          )
+        }
+      }
   }
 }
