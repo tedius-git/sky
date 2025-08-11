@@ -64,6 +64,3 @@ export function setup_mouse_up_listener(dispatch) {
     };
 }
 
-export function clear() {
-    console.clear()
-}

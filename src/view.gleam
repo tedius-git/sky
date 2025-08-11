@@ -180,9 +180,9 @@ fn view_sim(model: Model) -> Element(Msg) {
       Some(start_pos) -> {
         let assert [x_0, y_0] = start_pos
         let assert [x, y] = model.mouse
-        let dx = x -. x_0
-        let dy = y -. y_0
-        [vectors.to_svg([x, y], [dx /. 10.0, dy /. 10.0], "gray")]
+        let dx = x_0 -. x
+        let dy = y_0 -. y
+        [vectors.to_svg([x_0, y_0], [dx /. 10.0, dy /. 10.0], "gray")]
       }
     }
 

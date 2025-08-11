@@ -65,7 +65,7 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
       particles: [],
       time: 0.0,
       timer_id: None,
-      mouse: [100.0, 100.0],
+      mouse: [500.0, 500.0],
       mouse_down_pos: None,
     )
   #(model, setup_mouse_tracking())
@@ -119,9 +119,6 @@ fn setup_mouse_tracking() -> Effect(Msg) {
     setup_mouse_up_listener(fn(x, y) { dispatch(MouseUp(x, y)) })
   Nil
 }
-
-@external(javascript, "./sky.ffi.mjs", "clear")
-fn clear() -> Nil
 
 // UPDATE ----------------------------------------------------------------------
 
@@ -183,7 +180,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       effect.none(),
     )
     MouseMoved(x, y) -> {
-      // echo "mouse:(" <> float.to_string(x) <> "," <> float.to_string(y) <> ")"
       #(Model(..model, mouse: [x, y]), effect.none())
     }
     MouseDown(_, _) -> {
@@ -194,13 +190,12 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       case model.mouse_down_pos {
         None -> #(model, effect.none())
         Some(start_pos) -> {
+          // TODO - When launching a planet if you move the mouse in the bottom the direcction changes
+          // TODO - Every time a button is click a planet is added
           let assert [x_0, y_0] = start_pos
-          let dx = x -. x_0
-          let dy = y -. y_0
+          let dx = x_0 -. x
+          let dy = y_0 -. y
           let velocity = [dx /. 10.0, dy /. 10.0]
-          echo "p_0 " <> vectors.to_string([x_0, y_0])
-          echo "p " <> vectors.to_string([x, y])
-          echo "v " <> vectors.to_string(velocity)
           let new_p = new_particle(start_pos, velocity, 5)
           #(
             Model(
