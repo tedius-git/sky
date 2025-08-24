@@ -56,7 +56,7 @@ fn get_window_height() -> Float {
 pub fn init(_args) -> #(Model, Effect(Msg)) {
   let model =
     Model(
-      debug: False,
+      debug: True,
       light_on: True,
       paused: True,
       width: get_window_width(),

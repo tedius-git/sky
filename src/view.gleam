@@ -182,22 +182,27 @@ fn view_sim(model: Model) -> Element(Msg) {
         let assert [x, y] = model.mouse
         let dx = x_0 -. x
         let dy = y_0 -. y
-        [vectors.to_svg([x_0, y_0], [dx /. 10.0, dy /. 10.0], "gray")]
+        [vectors.to_svg([x_0, y_0], [dx /. 100.0, dy /. 100.0], "gray")]
       }
     }
 
     {
       case model.debug {
         True -> {
-          let forces =
-            list.map(model.particles, fn(p) {
-              #(
-                p.r,
-                physics.sum_forces(p, model.particles),
-                physics.get_color(p),
-              )
-            })
-          list.map(forces, fn(v) {
+          let arrows =
+            list.append(
+              list.map(model.particles, fn(p) {
+                #(
+                  p.r,
+                  vectors.scale(2.0, physics.sum_forces(p, model.particles)),
+                  "purple",
+                )
+              }),
+              list.map(model.particles, fn(p) {
+                #(p.r, vectors.scale(0.1, p.v), "gray")
+              }),
+            )
+          list.map(arrows, fn(v) {
             let #(from, to, color) = v
             vectors.to_svg(from, to, color)
           })

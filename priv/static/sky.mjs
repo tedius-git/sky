@@ -4718,7 +4718,7 @@ function setup_mouse_tracking() {
 }
 function init(_) {
   let model = new Model(
-    false,
+    true,
     true,
     get_window_width(),
     get_window_height(),
@@ -5331,7 +5331,7 @@ function view_sim(model) {
         _block = toList([
           to_svg(
             toList([x_0, y_0]),
-            toList([divideFloat(dx, 10), divideFloat(dy, 10)]),
+            toList([divideFloat(dx, 100), divideFloat(dy, 100)]),
             "gray"
           )
         ]);
@@ -5340,18 +5340,26 @@ function view_sim(model) {
       let _block$1;
       let $1 = model.debug;
       if ($1) {
-        let forces2 = map(
-          model.particles,
-          (p) => {
-            return [
-              p.r,
-              sum_forces(p, model.particles),
-              get_color(p)
-            ];
-          }
+        let arrows = append(
+          map(
+            model.particles,
+            (p) => {
+              return [
+                p.r,
+                scale(2, sum_forces(p, model.particles)),
+                "purple"
+              ];
+            }
+          ),
+          map(
+            model.particles,
+            (p) => {
+              return [p.r, scale(0.1, p.v), "gray"];
+            }
+          )
         );
         _block$1 = map(
-          forces2,
+          arrows,
           (v) => {
             let from2 = v[0];
             let to = v[1];
