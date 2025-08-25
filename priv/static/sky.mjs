@@ -4425,7 +4425,7 @@ var Particle = class extends CustomType {
   }
 };
 function forces(particle, others) {
-  let g = 6674.3;
+  let g = 66743;
   return map(
     others,
     (p) => {
@@ -4436,9 +4436,9 @@ function forces(particle, others) {
         r_squared
       );
       let direction = normalize(dr);
-      let $ = force_magnitude > 10;
+      let $ = force_magnitude > 50;
       if ($) {
-        return scale(10, direction);
+        return scale(50, direction);
       } else {
         return scale(force_magnitude, direction);
       }
@@ -5394,7 +5394,7 @@ function view_sim(model) {
                 p.r,
                 (() => {
                   let forces2 = sum_forces(p, model.particles);
-                  let _pipe2 = scale(2, forces2);
+                  let _pipe2 = forces2;
                   return min(_pipe2, normalize(forces2));
                 })(),
                 "darkorchid"

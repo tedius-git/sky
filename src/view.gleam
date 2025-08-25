@@ -198,7 +198,7 @@ fn view_sim(model: Model) -> Element(Msg) {
               p.r,
               {
                 let forces = physics.sum_forces(p, model.particles)
-                vectors.scale(2.0, forces)
+                forces
                 |> vectors.min(vectors.normalize(forces))
               },
               "darkorchid",

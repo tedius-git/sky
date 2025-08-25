@@ -18,7 +18,7 @@ pub fn forces(
   particle: Particle,
   others: List(Particle),
 ) -> List(vectors.Vector) {
-  let g = 6.6743e3
+  let g = 6.6743e4
   list.map(others, fn(p) {
     let dr = vectors.subtract(p.r, particle.r)
 
@@ -29,8 +29,8 @@ pub fn forces(
 
     let direction = vectors.normalize(dr)
 
-    case force_magnitude >. 10.0 {
-      True -> vectors.scale(10.0, direction)
+    case force_magnitude >. 50.0 {
+      True -> vectors.scale(50.0, direction)
 
       False -> vectors.scale(force_magnitude, direction)
     }
