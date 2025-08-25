@@ -4405,6 +4405,14 @@ function to_svg(center, to, color) {
     ])
   );
 }
+function min(u, v) {
+  let $ = mod(u) < mod(v);
+  if ($) {
+    return u;
+  } else {
+    return v;
+  }
+}
 
 // build/dev/javascript/sky/physics.mjs
 var Particle = class extends CustomType {
@@ -5346,8 +5354,12 @@ function view_sim(model) {
             (p) => {
               return [
                 p.r,
-                scale(2, sum_forces(p, model.particles)),
-                "purple"
+                (() => {
+                  let forces2 = sum_forces(p, model.particles);
+                  let _pipe2 = scale(2, forces2);
+                  return min(_pipe2, normalize(forces2));
+                })(),
+                "darkorchid"
               ];
             }
           ),

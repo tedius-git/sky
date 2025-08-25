@@ -194,8 +194,12 @@ fn view_sim(model: Model) -> Element(Msg) {
               list.map(model.particles, fn(p) {
                 #(
                   p.r,
-                  vectors.scale(2.0, physics.sum_forces(p, model.particles)),
-                  "purple",
+                  {
+                    let forces = physics.sum_forces(p, model.particles)
+                    vectors.scale(2.0, forces)
+                    |> vectors.min(vectors.normalize(forces))
+                  },
+                  "darkorchid",
                 )
               }),
               list.map(model.particles, fn(p) {

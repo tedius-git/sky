@@ -91,3 +91,17 @@ pub fn to_svg(center: Vector, to: Vector, color: String) {
     attribute("marker-end", "url(#arrow)"),
   ])
 }
+
+pub fn max(u: Vector, v: Vector) {
+  case mod(u) >. mod(v) {
+    True -> u
+    False -> v
+  }
+}
+
+pub fn min(u: Vector, v: Vector) {
+  case mod(u) <. mod(v) {
+    True -> u
+    False -> v
+  }
+}
