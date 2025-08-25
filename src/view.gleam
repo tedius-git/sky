@@ -1,7 +1,7 @@
 // IMPORTS ---------------------------------------------------------------------
 import app.{
-  type Model, type Msg, UserDecreseTime, UserIncreseTime, UserToggleDebug,
-  UserTogglePaused, UserToggleTheme,
+  type Model, type Msg, UserDecreseTime, UserIncreseTime, UserToggleA,
+  UserTogglePaused, UserToggleTheme, UserToggleV,
 }
 import gleam/bool
 import gleam/list
@@ -53,7 +53,11 @@ pub fn view(model: Model) -> Element(Msg) {
       h.div([a.class("flex-grow z-20 flex justify-end")], [
         div_glass(
           [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
-          [view_switch(UserToggleDebug, model.debug, h.text("i"), h.text("i"))],
+          [view_switch(UserToggleV, model.show_v, h.text("v"), h.text("v"))],
+        ),
+        div_glass(
+          [a.class("w-12 transition duration-300 ease-in-out hover:scale-125")],
+          [view_switch(UserToggleA, model.show_a, h.text("a"), h.text("a"))],
         ),
       ]),
       // Timer
@@ -187,32 +191,33 @@ fn view_sim(model: Model) -> Element(Msg) {
     }
 
     {
-      case model.debug {
-        True -> {
-          let arrows =
-            list.append(
-              list.map(model.particles, fn(p) {
-                #(
-                  p.r,
-                  {
-                    let forces = physics.sum_forces(p, model.particles)
-                    vectors.scale(2.0, forces)
-                    |> vectors.min(vectors.normalize(forces))
-                  },
-                  "darkorchid",
-                )
-              }),
-              list.map(model.particles, fn(p) {
-                #(p.r, vectors.scale(0.1, p.v), "gray")
-              }),
+      let a = case model.show_a {
+        True ->
+          list.map(model.particles, fn(p) {
+            #(
+              p.r,
+              {
+                let forces = physics.sum_forces(p, model.particles)
+                vectors.scale(2.0, forces)
+                |> vectors.min(vectors.normalize(forces))
+              },
+              "darkorchid",
             )
-          list.map(arrows, fn(v) {
-            let #(from, to, color) = v
-            vectors.to_svg(from, to, color)
           })
-        }
         False -> []
       }
+      let v = case model.show_v {
+        True ->
+          list.map(model.particles, fn(p) {
+            #(p.r, vectors.scale(0.1, p.v), "gray")
+          })
+        False -> []
+      }
+      let arrows = list.append(v, a)
+      list.map(arrows, fn(v) {
+        let #(from, to, color) = v
+        vectors.to_svg(from, to, color)
+      })
     }
     |> list.append(particles_svg)
     |> list.append(launch_v)

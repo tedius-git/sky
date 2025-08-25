@@ -12,7 +12,8 @@ import vectors
 
 pub type Model {
   Model(
-    debug: Bool,
+    show_v: Bool,
+    show_a: Bool,
     light_on: Bool,
     width: Float,
     height: Float,
@@ -27,7 +28,8 @@ pub type Model {
 
 pub type Msg {
   UserTogglePaused
-  UserToggleDebug
+  UserToggleV
+  UserToggleA
   UserToggleTheme
   IncreseTime
   TimerStarted(Int)
@@ -56,7 +58,8 @@ fn get_window_height() -> Float {
 pub fn init(_args) -> #(Model, Effect(Msg)) {
   let model =
     Model(
-      debug: True,
+      show_v: True,
+      show_a: True,
       light_on: True,
       paused: True,
       width: get_window_width(),
@@ -130,8 +133,12 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       Model(..model, light_on: bool.negate(model.light_on)),
       effect.none(),
     )
-    UserToggleDebug -> #(
-      Model(..model, debug: bool.negate(model.debug)),
+    UserToggleV -> #(
+      Model(..model, show_v: bool.negate(model.show_v)),
+      effect.none(),
+    )
+    UserToggleA -> #(
+      Model(..model, show_a: bool.negate(model.show_a)),
       effect.none(),
     )
     UserTogglePaused ->

@@ -4615,9 +4615,10 @@ function setup_mouse_up_listener(dispatch) {
 
 // build/dev/javascript/sky/app.mjs
 var Model = class extends CustomType {
-  constructor(debug, light_on, width, height, paused, particles, time, timer_id, mouse, mouse_down_pos) {
+  constructor(show_v, show_a, light_on, width, height, paused, particles, time, timer_id, mouse, mouse_down_pos) {
     super();
-    this.debug = debug;
+    this.show_v = show_v;
+    this.show_a = show_a;
     this.light_on = light_on;
     this.width = width;
     this.height = height;
@@ -4631,7 +4632,9 @@ var Model = class extends CustomType {
 };
 var UserTogglePaused = class extends CustomType {
 };
-var UserToggleDebug = class extends CustomType {
+var UserToggleV = class extends CustomType {
+};
+var UserToggleA = class extends CustomType {
 };
 var UserToggleTheme = class extends CustomType {
 };
@@ -4728,6 +4731,7 @@ function init(_) {
   let model = new Model(
     true,
     true,
+    true,
     get_window_width(),
     get_window_height(),
     true,
@@ -4747,7 +4751,8 @@ function update2(model, msg) {
       (() => {
         let _record = model;
         return new Model(
-          _record.debug,
+          _record.show_v,
+          _record.show_a,
           negate2(model.light_on),
           _record.width,
           _record.height,
@@ -4761,12 +4766,33 @@ function update2(model, msg) {
       })(),
       none()
     ];
-  } else if (msg instanceof UserToggleDebug) {
+  } else if (msg instanceof UserToggleV) {
     return [
       (() => {
         let _record = model;
         return new Model(
-          negate2(model.debug),
+          negate2(model.show_v),
+          _record.show_a,
+          _record.light_on,
+          _record.width,
+          _record.height,
+          _record.paused,
+          _record.particles,
+          _record.time,
+          _record.timer_id,
+          _record.mouse,
+          _record.mouse_down_pos
+        );
+      })(),
+      none()
+    ];
+  } else if (msg instanceof UserToggleA) {
+    return [
+      (() => {
+        let _record = model;
+        return new Model(
+          _record.show_v,
+          negate2(model.show_a),
           _record.light_on,
           _record.width,
           _record.height,
@@ -4787,7 +4813,8 @@ function update2(model, msg) {
         (() => {
           let _record = model;
           return new Model(
-            _record.debug,
+            _record.show_v,
+            _record.show_a,
             _record.light_on,
             _record.width,
             _record.height,
@@ -4807,7 +4834,8 @@ function update2(model, msg) {
         (() => {
           let _record = model;
           return new Model(
-            _record.debug,
+            _record.show_v,
+            _record.show_a,
             _record.light_on,
             _record.width,
             _record.height,
@@ -4826,7 +4854,8 @@ function update2(model, msg) {
         (() => {
           let _record = model;
           return new Model(
-            _record.debug,
+            _record.show_v,
+            _record.show_a,
             _record.light_on,
             _record.width,
             _record.height,
@@ -4847,7 +4876,8 @@ function update2(model, msg) {
       (() => {
         let _record = model;
         return new Model(
-          _record.debug,
+          _record.show_v,
+          _record.show_a,
           _record.light_on,
           _record.width,
           _record.height,
@@ -4866,7 +4896,8 @@ function update2(model, msg) {
       (() => {
         let _record = model;
         return new Model(
-          _record.debug,
+          _record.show_v,
+          _record.show_a,
           _record.light_on,
           _record.width,
           _record.height,
@@ -4885,7 +4916,8 @@ function update2(model, msg) {
       (() => {
         let _record = model;
         return new Model(
-          _record.debug,
+          _record.show_v,
+          _record.show_a,
           _record.light_on,
           _record.width,
           _record.height,
@@ -4908,7 +4940,8 @@ function update2(model, msg) {
         (() => {
           let _record = model;
           return new Model(
-            _record.debug,
+            _record.show_v,
+            _record.show_a,
             _record.light_on,
             _record.width,
             _record.height,
@@ -4929,7 +4962,8 @@ function update2(model, msg) {
       (() => {
         let _record = model;
         return new Model(
-          _record.debug,
+          _record.show_v,
+          _record.show_a,
           _record.light_on,
           _record.width,
           _record.height,
@@ -4964,7 +4998,8 @@ function update2(model, msg) {
       (() => {
         let _record = model;
         return new Model(
-          _record.debug,
+          _record.show_v,
+          _record.show_a,
           _record.light_on,
           _record.width,
           _record.height,
@@ -4988,7 +5023,8 @@ function update2(model, msg) {
         (() => {
           let _record = model;
           return new Model(
-            _record.debug,
+            _record.show_v,
+            _record.show_a,
             _record.light_on,
             _record.width,
             _record.height,
@@ -5017,7 +5053,7 @@ function update2(model, msg) {
         throw makeError(
           "let_assert",
           "app",
-          199,
+          206,
           "update",
           "Pattern match failed, no pattern matched the value.",
           { value: start_pos }
@@ -5033,7 +5069,8 @@ function update2(model, msg) {
         (() => {
           let _record = model;
           return new Model(
-            _record.debug,
+            _record.show_v,
+            _record.show_a,
             _record.light_on,
             _record.width,
             _record.height,
@@ -5313,7 +5350,7 @@ function view_sim(model) {
           throw makeError(
             "let_assert",
             "view",
-            181,
+            185,
             "view_sim",
             "Pattern match failed, no pattern matched the value.",
             { value: start_pos }
@@ -5321,19 +5358,19 @@ function view_sim(model) {
         }
         let x_0 = start_pos.head;
         let y_0 = start_pos.tail.head;
-        let $12 = model.mouse;
-        if (!$12.hasLength(2)) {
+        let $1 = model.mouse;
+        if (!$1.hasLength(2)) {
           throw makeError(
             "let_assert",
             "view",
-            182,
+            186,
             "view_sim",
             "Pattern match failed, no pattern matched the value.",
-            { value: $12 }
+            { value: $1 }
           );
         }
-        let x2 = $12.head;
-        let y2 = $12.tail.head;
+        let x2 = $1.head;
+        let y2 = $1.tail.head;
         let dx = x_0 - x2;
         let dy = y_0 - y2;
         _block = toList([
@@ -5346,10 +5383,11 @@ function view_sim(model) {
       }
       let launch_v = _block;
       let _block$1;
-      let $1 = model.debug;
-      if ($1) {
-        let arrows = append(
-          map(
+      {
+        let _block$2;
+        let $1 = model.show_a;
+        if ($1) {
+          _block$2 = map(
             model.particles,
             (p) => {
               return [
@@ -5362,25 +5400,34 @@ function view_sim(model) {
                 "darkorchid"
               ];
             }
-          ),
-          map(
+          );
+        } else {
+          _block$2 = toList([]);
+        }
+        let a2 = _block$2;
+        let _block$3;
+        let $2 = model.show_v;
+        if ($2) {
+          _block$3 = map(
             model.particles,
             (p) => {
               return [p.r, scale(0.1, p.v), "gray"];
             }
-          )
-        );
+          );
+        } else {
+          _block$3 = toList([]);
+        }
+        let v = _block$3;
+        let arrows = append(v, a2);
         _block$1 = map(
           arrows,
-          (v) => {
-            let from2 = v[0];
-            let to = v[1];
-            let color = v[2];
+          (v2) => {
+            let from2 = v2[0];
+            let to = v2[1];
+            let color = v2[2];
             return to_svg(from2, to, color);
           }
         );
-      } else {
-        _block$1 = toList([]);
       }
       let _pipe = _block$1;
       let _pipe$1 = append(_pipe, particles_svg);
@@ -5455,10 +5502,25 @@ function view(model) {
                 ]),
                 toList([
                   view_switch(
-                    new UserToggleDebug(),
-                    model.debug,
-                    text3("i"),
-                    text3("i")
+                    new UserToggleV(),
+                    model.show_v,
+                    text3("v"),
+                    text3("v")
+                  )
+                ])
+              ),
+              div_glass(
+                toList([
+                  class$(
+                    "w-12 transition duration-300 ease-in-out hover:scale-125"
+                  )
+                ]),
+                toList([
+                  view_switch(
+                    new UserToggleA(),
+                    model.show_a,
+                    text3("a"),
+                    text3("a")
                   )
                 ])
               )
