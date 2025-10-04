@@ -13,7 +13,7 @@
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
-        devShells.${system}.default = pkgs.mkShell {
+        devShells.default = pkgs.mkShell {
           shellHook = ''
             echo "Development environment loaded"
           '';
